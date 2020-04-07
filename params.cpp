@@ -51,28 +51,66 @@ const double basevload[VLOADNSUB][VLOADNDAY] = {
 };
 
 // travel data
-double const travel_pr[TAG] = { .0023, .0023, .0050, .0053, .0028 }; // age-specific travel probability per day
-double const travel_length_cdf[12] = { 0.239, 0.406, 0.574, 0.741,
-				       0.787, 0.834, 0.880, 0.926,
-				       0.945, 0.963, 0.982, 1.0 }; // cdf of length of trip in days (nights away from home)
+double const travel_pr[TAG] = {
+    .0023,
+    .0023,
+    .0050,
+    .0053,
+    .0028
+}; // age-specific travel probability per day
+double const travel_length_cdf[12] = {
+    0.239,
+    0.406,
+    0.574,
+    0.741,
+	0.787,
+    0.834,
+    0.880,
+    0.926,
+	0.945,
+    0.963,
+    0.982,
+    1.0
+}; // cdf of length of trip in days (nights away from home)
 
-const unsigned int FIPS_hubs[] = {36061, // JFK
-				  6037,  // LAX
-				  12086, // MIA
-				  17031, // ORD
-				  34017, // EWR
-				  13121, // ATL
-				  6075,  // SFO
-				  48201, // IAH
-				  51059, // IAD
-				  48113, // DFW
-				  26163, // DTW
-				  42045, // PHL
-				  25025, // BOS
-				  12011, // FLL
-				  53033};// SEA
-const unsigned int Size_hubs[] = {21842544, 17019166, 15509279, 11375367, 
-				  10812993, 9166055,  8648219,  7627942,
-				  5893142,  4872207,  3887481,  3734127,
-				  3673748,  3062384,  2766576};
-// from US International Air Passenger and Freight Statistics, June 2008
+// Source: US International Air Passenger and Freight Statistics, June 2008
+// Biggest airports of the USA
+// last three digits = county id
+// first digits = county id
+const unsigned int FIPS_hubs[] = {
+    36061, // JFK
+    6037,  // LAX
+    12086, // MIA
+    17031, // ORD
+    34017, // EWR
+    13121, // ATL
+    6075,  // SFO
+    48201, // IAH
+    51059, // IAD
+    48113, // DFW
+    26163, // DTW
+    42045, // PHL
+    25025, // BOS
+    12011, // FLL
+    53033  // SEA
+};
+// Source: US International Air Passenger and Freight Statistics, June 2008
+// Gives number of passenger for the above airports for a whole year, that ended
+// in June 2008.
+const unsigned int Size_hubs[] = {
+    21842544,
+    17019166,
+    15509279,
+    11375367, 
+	10812993,
+    9166055,
+    8648219,
+    7627942,
+	5893142,
+    4872207,
+    3887481,
+    3734127,
+	3673748,
+    3062384,
+    2766576
+}; 
