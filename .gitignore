@@ -1,1 +1,11 @@
 run-number
+input_ew/Middle_Layer_Super_Output_Areas_December_2011_Population_Weighted_Centroids.geojson
+input_ew/PCD11_OA11_LSOA11_MSOA11_LAD11_RGN17_FID_EW_LU.csv
+input_ew/employment_status_in_msoa_wp601ew_2011.csv
+input_ew/flow_in_msoa_wu01ew_2011.csv
+input_ew/population_in_msoa_sape21dt3a_2018.csv
+*_log
+*_summary
+*_tracts
+*.o
+flute
