@@ -376,7 +376,7 @@ void EpiModel::read_tracts(void) {
   istream_iterator< Tract > iscit(iss), eos;
   copy(iscit, eos, inserter(tractvec, tractvec.begin()));
   nNumTractsTotal = tractvec.size();
-
+  
   // keep tracts from the same county on the same node
   unsigned int firsttract = (int)(rank*nNumTractsTotal/size);
   unsigned int lasttract = (int)((rank+1)*nNumTractsTotal/size);
@@ -427,7 +427,6 @@ void EpiModel::read_tracts(void) {
     }
   }
   nNumTractsTotal = disps[size];
-  
   tractToCPU = new int[nNumTractsTotal];
   tractToFIPStract = new unsigned int[nNumTractsTotal];
   tractToFIPScounty = new unsigned int[nNumTractsTotal];
@@ -462,6 +461,7 @@ void EpiModel::read_tracts(void) {
   istream_iterator< Tract > iscit(iss), eos;
   copy(iscit, eos, inserter(tractvec, tractvec.begin()));
   nNumTractsTotal = tractvec.size();
+  
   tractToFIPStract = new unsigned int[nNumTractsTotal];
   tractToFIPScounty = new unsigned int[nNumTractsTotal];
   tractToFIPSstate = new unsigned int[nNumTractsTotal];
@@ -531,7 +531,7 @@ bool EpiModel::read_workflow_file(string s, unsigned int *flow, map<int,int> *st
     return false;
   int nNumTracts = tractvec.size();  // number of tracts on this node
   while (iss) {
-    unsigned int fromstate, fromcounty, fromtract, tostate, tocounty, totract, workers;
+    unsigned long int fromstate, fromcounty, fromtract, tostate, tocounty, totract, workers;
     if (iss >> fromstate >> fromcounty >> fromtract >> tostate >> tocounty >> totract >> workers) {
       int from=-1, to=-1;
       map<int,int>::iterator it = statetracts[fromstate].find(fromcounty*1000000+fromtract);
@@ -947,10 +947,9 @@ void EpiModel::create_families(Community& comm, int nTargetSize) {
   nplay[0] = nplay[1] = nplay[2] = nplay[3] = 0;
   while (comm.nNumResidents < nTargetSize) {
     // Create a new family and randomly place it
-    // This uses the US Census's PUMS 1% data for the continental US+DC
-    // (http://www2.census.gov/census_2000/datasets/PUMS/OnePercent/).
-    // The distribution of household sizes was based on the PUMS data
-    // for households of 1-7 people.
+    // The distribution of household sizes uses the UK Census data
+    // provided by NOMIS, Dataset ID: QS406EW - Household size
+    // (https://www.nomisweb.co.uk/census/2011/qs406ew)
     // The probablities for the actual age structure of households
     // were also used  (e.g., the number of 2 elderly people living 
     // together, or one pre-schooler and two young adults, etc).

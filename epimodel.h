@@ -351,10 +351,10 @@ struct Community {
 };
 
 struct Tract {
-  unsigned int id;          // unique tract identifier
-  unsigned int fips_tract;  // census tract FIPS
-  unsigned int fips_county; // county FIPS
-  unsigned int fips_state;  // state FIPS
+  unsigned long int id;          // unique tract identifier
+  unsigned long int fips_tract;  // census tract FIPS
+  unsigned long int fips_county; // county FIPS
+  unsigned long int fips_state;  // state FIPS
   unsigned int censuspopulation;  // population (from data file)
   unsigned int employed;    // number of employed people (from data file)
   unsigned int workforce;   // number of working age people (from data file)
