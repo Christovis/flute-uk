@@ -960,235 +960,235 @@ void EpiModel::create_families(Community& comm, int nTargetSize) {
     // preschoolers), it was not included.
     int agegroups[TAG] = {0,0,0,0,0};
     double r = get_rand_double;
-    if (r<0.2606) { // single-person household
-      if (r<0.0955)
+    if (r<0.302459) { // single-person household
+      if (r<0.11083973)
 	agegroups[4] = 1;
-      else if (r<0.2309)
+      else if (r<0.26798842)
 	agegroups[3] = 1;
-      else if (r<0.2601)
+      else if (r<0.30187869)
 	agegroups[2] = 1;
       else
 	agegroups[1] = 1;
-    } else if (r<0.5892) { // two-person household
-      if (r<0.3254329) {    // two elderly
+    } else if (0.644752) { // two-person household
+      if (r<0.36999353) {    // two elderly
 	agegroups[4] = 2;
-      } else if (r<0.3623) {  // elderly+old
+      } else if (r<0.40839691) {  // elderly+old
 	agegroups[4] = 1; agegroups[3] = 1;
-      } else if (r<0.5037) {  // two old
+      } else if (r<0.55568915) {  // two old
 	agegroups[3] = 2;
-      } else if (r<0.5051) {  // elderly+young
+      } else if (r<0.55714749) {  // elderly+young
 	agegroups[4] = 1; agegroups[2] = 1;
-      } else if (r<0.5295) {  // old+young
+      } else if (r<0.58256426) {  // old+young
 	agegroups[3] = 1; agegroups[2] = 1;
-      } else if (r<0.5594) {  // two young
+      } else if (r<0.61371021) {  // two young
 	agegroups[2] = 2;
-      } else if (r<0.5600) {  // elderly+school
+      } else if (r<0.61433521) {  // elderly+school
 	agegroups[4] = 1; agegroups[1] = 1;
-      } else if (r<0.5797) {  // old+school
+      } else if (r<0.63485613) {  // old+school
 	agegroups[3] = 1; agegroups[1] = 1;
-      } else if (r<0.5831) {  // young+school
+      } else if (r<0.63839781) {  // young+school
 	agegroups[2] = 1; agegroups[1] = 1;
-      } else if (r<0.5833) {  // two school
+      } else if (r<0.63860614) {  // two school
 	agegroups[1] = 2;
-      } else if (r<0.5853) {  // old+preschool
+      } else if (r<0.64068948) {  // old+preschool
 	agegroups[3] = 1; agegroups[0] = 1;
-      } else if (r<0.5891) {  // young+preschool
+      } else if (r<0.64464783) {  // young+preschool
 	agegroups[2] = 1; agegroups[0] = 1;
       } else {                // school+preschool
 	agegroups[1] = 1; agegroups[0] = 1;
       }
-    } else if (r<0.7553) { // three-person household
-      if (r<0.59592) {
+    } else if (r<0.800601) { // three-person household
+      if (r<0.65105651) {
 	agegroups[3]=1;agegroups[4]=2;
-      } else if (r<0.6033) {
+      } else if (r<0.65798021) {
 	agegroups[3]=2;agegroups[4]=1;
-      } else if (r<0.61044) {
+      } else if (r<0.66467876) {
 	agegroups[3]=3;
-      } else if (r<0.61275) {
+      } else if (r<0.66684593) {
 	agegroups[2]=1;agegroups[3]=1;agegroups[4]=1;
-      } else if (r<0.63532) {
+      } else if (r<0.68802046) {
 	agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.63874) {
+      } else if (r<0.691229) {
 	agegroups[2]=2;agegroups[3]=1;
-      } else if (r<0.64236) {
+      } else if (r<0.69462518) {
 	agegroups[2]=3;
-      } else if (r<0.64464) {
+      } else if (r<0.69676421) {
 	agegroups[1]=1;agegroups[3]=1;agegroups[4]=1;
-      } else if (r<0.69282) {
+      } else if (r<0.7419653) {
 	agegroups[1]=1;agegroups[3]=2;
-      } else if (r<0.70003) {
+      } else if (r<0.74872951) {
 	agegroups[1]=1;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.70258) {
+      } else if (r<0.75112185) {
 	agegroups[1]=1;agegroups[2]=2;
-      } else if (r<0.71606) {
+      } else if (r<0.7637684) {
 	agegroups[1]=2;agegroups[3]=1;
-      } else if (r<0.73057) {
+      } else if (r<0.77738126) {
 	agegroups[0]=1;agegroups[3]=2;
-      } else if (r<0.73841) {
+      } else if (r<0.78473652) {
 	agegroups[0]=1;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.75046) {
+      } else if (r<0.79604149) {
 	agegroups[0]=1;agegroups[2]=2;
-      } else if (r<0.75293) {
+      } else if (r<0.79835877) {
 	agegroups[0]=1;agegroups[1]=1;agegroups[3]=1;
-      } else if (r<0.75532) {
+      } else {
 	agegroups[0]=1;agegroups[1]=1;agegroups[2]=1;
       }
-    } else if (r<0.8988042) { // four-person household
-      if (r<0.76155) {
+    } else if (r<0.930322) { // four-person household
+      if (r<0.80623341) {
 	agegroups[2]=2;agegroups[3]=2;
-      } else if (r<0.76334) {
+      } else if (r<0.80785171) {
 	agegroups[1]=1;agegroups[3]=2;agegroups[4]=1;
-      } else if (r<0.76525) {
+      } else if (r<0.8095785) {
 	agegroups[1]=1;agegroups[3]=3;
-      } else if (r<0.77826) {
+      } else if (r<0.82134056) {
 	agegroups[1]=1;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.84032) {
+      } else if (r<0.87744768) {
 	agegroups[1]=2;agegroups[3]=2;
-      } else if (r<0.84477) {
+      } else if (r<0.88147083) {
 	agegroups[1]=2;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.84981) {
+      } else if (r<0.88602739) {
 	agegroups[1]=3;agegroups[3]=1;
-      } else if (r<0.85167) {
+      } else if (r<0.88770898) {
 	agegroups[0]=1;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.87035) {
+      } else if (r<0.90459717) {
 	agegroups[0]=1;agegroups[1]=1;agegroups[3]=2;
-      } else if (r<0.8757) {
+      } else if (r<0.90943399) {
 	agegroups[0]=1;agegroups[1]=1;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.8801) {
+      } else if (r<0.91341193) {
 	agegroups[0]=1;agegroups[1]=1;agegroups[2]=2;
-      } else if (r<0.88185) {
+      } else if (r<0.91499407) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[3]=1;
-      } else if (r<0.89) {
+      } else if (r<0.92236231) {
 	agegroups[0]=2;agegroups[3]=2;
-      } else if (r<0.89344) {
+      } else if (r<0.92547234) {
 	agegroups[0]=2;agegroups[2]=1;agegroups[3]=1;
       } else {
 	agegroups[0]=2;agegroups[2]=2;
       }
-    } else if (r<0.9661342) { // five-person household
-      if (r<0.89985) {
+    } else if (r<0.976765) { // five-person household
+      if (r<0.93104337) {
 	agegroups[2]=3;agegroups[3]=2;
-      } else if (r<0.90282) {
+      } else if (r<0.93309203) {
 	agegroups[1]=1;agegroups[2]=2;agegroups[3]=2;
-      } else if (r<0.90443) {
+      } else if (r<0.93420257) {
 	agegroups[1]=2;agegroups[3]=2;agegroups[4]=1;
-      } else if (r<0.90618) {
+      } else if (r<0.93540969) {
 	agegroups[1]=2;agegroups[3]=3;
-      } else if (r<0.91267) {
+      } else if (r<0.93988637) {
 	agegroups[1]=2;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.93739) {
+      } else if (r<0.95693778) {
 	agegroups[1]=3;agegroups[3]=2;
-      } else if (r<0.93918) {
+      } else if (r<0.95817249) {
 	agegroups[1]=3;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.94066) {
+      } else if (r<0.95919336) {
 	agegroups[1]=4;agegroups[3]=1;
-      } else if (r<0.94171) {
+      } else if (r<0.95991763) {
 	agegroups[0]=1;agegroups[2]=2;agegroups[3]=2;
-      } else if (r<0.94352) {
+      } else if (r<0.96116614) {
 	agegroups[0]=1;agegroups[1]=1;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.95513) {
+      } else if (r<0.9691745) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[3]=2;
-      } else if (r<0.95772) {
+      } else if (r<0.97096104) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.9589) {
+      } else if (r<0.97177498) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[2]=2;
-      } else if (r<0.96292) {
+      } else if (r<0.9745479) {
 	agegroups[0]=2;agegroups[1]=1;agegroups[3]=2;
-      } else if (r<0.96458) {
+      } else if (r<0.97569294) {
 	agegroups[0]=2;agegroups[1]=1;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.96613) {
+      } else if (r<0.9767621) {
 	agegroups[0]=2;agegroups[1]=1;agegroups[2]=2;
       }
-    } else if (r<0.9913266) { // six-person household
-      if (r<0.96663) {
+    } else if (r<0.993318) { // six-person household
+      if (r<0.97709077) {
 	agegroups[1]=1;agegroups[2]=3;agegroups[3]=2;
-      } else if (r<0.96698) {
+      } else if (r<0.97732074) {
 	agegroups[1]=2;agegroups[3]=4;
-      } else if (r<0.96745) {
+      } else if (r<0.97762956) {
 	agegroups[1]=2;agegroups[2]=1;agegroups[3]=3;
-      } else if (r<0.96874) {
+      } else if (r<0.97847718) {
 	agegroups[1]=2;agegroups[2]=2;agegroups[3]=2;
-      } else if (r<0.96937) {
+      } else if (r<0.97889113) {
 	agegroups[1]=3;agegroups[3]=2;agegroups[4]=1;
-      } else if (r<0.97021) {
+      } else if (r<0.97944306) {
 	agegroups[1]=3;agegroups[3]=3;
-      } else if (r<0.97248) {
+      } else if (r<0.98093459) {
 	agegroups[1]=3;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.97889) {
+      } else if (r<0.98514637) {
 	agegroups[1]=4;agegroups[3]=2;
-      } else if (r<0.97943) {
+      } else if (r<0.98550118) {
 	agegroups[1]=4;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.97981) {
+      } else if (r<0.98575087) {
 	agegroups[1]=5;agegroups[3]=1;
-      } else if (r<0.98054) {
+      } else if (r<0.98623052) {
 	agegroups[0]=1;agegroups[1]=1;agegroups[2]=2;agegroups[3]=2;
-      } else if (r<0.98104) {
+      } else if (r<0.98655905) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[3]=3;
-      } else if (r<0.98223) {
+      } else if (r<0.98734096) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.98259) {
+      } else if (r<0.9875775) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[2]=2;agegroups[3]=1;
-      } else if (r<0.98668) {
+      } else if (r<0.99026489) {
 	agegroups[0]=1;agegroups[1]=3;agegroups[3]=2;
-      } else if (r<0.98745) {
+      } else if (r<0.99077083) {
 	agegroups[0]=1;agegroups[1]=3;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.98788) {
+      } else if (r<0.99105337) {
 	agegroups[0]=2;agegroups[1]=1;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.98987) {
+      } else if (r<0.99236092) {
 	agegroups[0]=2;agegroups[1]=2;agegroups[3]=2;
-      } else if (r<0.99054) {
+      } else if (r<0.99280115) {
 	agegroups[0]=2;agegroups[1]=2;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.99098) {
+      } else if (r<0.99309026) {
 	agegroups[0]=2;agegroups[1]=2;agegroups[2]=2;
       } else {
 	agegroups[0]=3;agegroups[1]=1;agegroups[3]=2;
       }
     } else { // seven-person household
-      if (r<0.99147) {
+      if (r<0.99342848) {
 	agegroups[1]=2;agegroups[2]=2;agegroups[3]=3;
-      } else if (r<0.9917) {
+      } else if (r<0.99360567) {
 	agegroups[1]=2;agegroups[2]=3;agegroups[3]=2;
-      } else if (r<0.99185) {
+      } else if (r<0.99372123) {
 	agegroups[1]=3;agegroups[3]=4;
-      } else if (r<0.99205) {
+      } else if (r<0.99387531) {
 	agegroups[1]=3;agegroups[2]=1;agegroups[3]=3;
-      } else if (r<0.99255) {
+      } else if (r<0.99426051) {
 	agegroups[1]=3;agegroups[2]=2;agegroups[3]=2;
-      } else if (r<0.99272) {
+      } else if (r<0.99439148) {
 	agegroups[1]=4;agegroups[3]=2;agegroups[4]=1;
-      } else if (r<0.99298) {
+      } else if (r<0.99459178) {
 	agegroups[1]=4;agegroups[3]=3;
-      } else if (r<0.99366) {
+      } else if (r<0.99511565) {
 	agegroups[1]=4;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.99514) {
+      } else if (r<0.99625585) {
 	agegroups[1]=5;agegroups[3]=2;
-      } else if (r<0.9953) {
+      } else if (r<0.99637911) {
 	agegroups[1]=5;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.99552) {
+      } else if (r<0.9965486) {
 	agegroups[0]=1;agegroups[1]=1;agegroups[2]=3;agegroups[3]=2;
-      } else if (r<0.99567) {
+      } else if (r<0.99666416) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[2]=1;agegroups[3]=3;
-      } else if (r<0.9961) {
+      } else if (r<0.99699543) {
 	agegroups[0]=1;agegroups[1]=2;agegroups[2]=2;agegroups[3]=2;
-      } else if (r<0.9963) {
+      } else if (r<0.99714951) {
 	agegroups[0]=1;agegroups[1]=3;agegroups[3]=3;
-      } else if (r<0.9968) {
+      } else if (r<0.99753472) {
 	agegroups[0]=1;agegroups[1]=3;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.99694) {
+      } else if (r<0.99764257) {
 	agegroups[0]=1;agegroups[1]=3;agegroups[2]=2;agegroups[3]=1;
-      } else if (r<0.99814) {
+      } else if (r<0.99856705) {
 	agegroups[0]=1;agegroups[1]=4;agegroups[3]=2;
-      } else if (r<0.99836) {
+      } else if (r<0.99873654) {
 	agegroups[0]=1;agegroups[1]=4;agegroups[2]=1;agegroups[3]=1;
-      } else if (r<0.99854) {
+      } else if (r<0.99887521) {
 	agegroups[0]=2;agegroups[1]=1;agegroups[2]=2;agegroups[3]=2;
-      } else if (r<0.99874) {
+      } else if (r<0.99902929) {
 	agegroups[0]=2;agegroups[1]=2;agegroups[2]=1;agegroups[3]=2;
-      } else if (r<0.99889) {
+      } else if (r<0.99914485) {
 	agegroups[0]=2;agegroups[1]=2;agegroups[2]=2;agegroups[3]=1;
-      } else if (r<0.99964) {
+      } else if (r<0.99972266) {
 	agegroups[0]=2;agegroups[1]=3;agegroups[3]=2;
-      } else if (r<0.99984) {
+      } else if (r<0.99987674) {
 	agegroups[0]=2;agegroups[1]=3;agegroups[2]=1;agegroups[3]=1;
       } else {
 	agegroups[0]=3;agegroups[1]=2;agegroups[3]=2;
