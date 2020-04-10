@@ -76,41 +76,35 @@ double const travel_length_cdf[12] = {
 // Source: US International Air Passenger and Freight Statistics, June 2008
 // Biggest airports of the USA
 // last three digits = county id
-// first digits = county id
+// first digits = state id
 const unsigned int FIPS_hubs[] = {
-    36061, // JFK
-    6037,  // LAX
-    12086, // MIA
-    17031, // ORD
-    34017, // EWR
-    13121, // ATL
-    6075,  // SFO
-    48201, // IAH
-    51059, // IAD
-    48113, // DFW
-    26163, // DTW
-    42045, // PHL
-    25025, // BOS
-    12011, // FLL
-    53033  // SEA
+    8039, //LHR
+    8248, //LGW
+    2260, //MAN
+    6130, //STN
+    6032, //LTN
+    5282, //BHX
+    9023, //BRS
+    1278, //NCL
+    2269, //LPL
+    4015, //EMA
+    7294, //LCY
+    3292, //LBA
 };
 // Source: US International Air Passenger and Freight Statistics, June 2008
 // Gives number of passenger for the above airports for a whole year, that ended
 // in June 2008.
 const unsigned int Size_hubs[] = {
-    21842544,
-    17019166,
-    15509279,
-    11375367, 
-	10812993,
-    9166055,
-    8648219,
-    7627942,
-	5893142,
-    4872207,
-    3887481,
-    3734127,
-	3673748,
-    3062384,
-    2766576
+    80124537,
+    46086089,
+    28292797,
+    27996116,
+    16769634,
+    12457051,
+    8699529,
+    5334095,
+    5046995,
+    4873831,
+    4820292,
+    4038889,
 }; 
