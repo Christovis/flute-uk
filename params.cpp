@@ -75,8 +75,8 @@ double const travel_length_cdf[12] = {
 
 // Source: US International Air Passenger and Freight Statistics, June 2008
 // Biggest airports of the USA
-// last three digits = county id
-// first digits = state id
+// last three digits = LAD11CD id
+// first digits = RGN17CD id
 const unsigned int FIPS_hubs[] = {
     8039, //LHR
     8248, //LGW
@@ -91,9 +91,9 @@ const unsigned int FIPS_hubs[] = {
     7294, //LCY
     3292, //LBA
 };
-// Source: US International Air Passenger and Freight Statistics, June 2008
-// Gives number of passenger for the above airports for a whole year, that ended
-// in June 2008.
+// Total number of passengers trafficed in 2018.
+// Source : "CAA Airport Data 2018". caa.co.uk. UK Civil Aviation Authority.
+// 13 March 2019. Retrieved 13 March 2019.
 const unsigned int Size_hubs[] = {
     80124537,
     46086089,
