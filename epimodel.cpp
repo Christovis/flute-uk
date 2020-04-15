@@ -17,7 +17,7 @@ extern "C" {
 #include "params.h"
 #include "epimodel.h"
 #include "epimodelparameters.h"
-#include <malloc.h> 
+// RGB not required? #include <malloc.h> 
 
 using namespace std;
 
@@ -92,6 +92,7 @@ EpiModel::EpiModel(EpiModelParameters &params) {
   nNumTAPDone=0;
   nNumWantAV = nNumWantVaccine = 0;
   nTriggerTime=INT_MAX;
+  nTriggerEndTime=INT_MAX;
   bTrigger=false;
   nTimer = 0;
 
@@ -151,9 +152,11 @@ EpiModel::EpiModel(EpiModelParameters &params) {
     bTrigger=true;
   }
   int temp=params.getTriggerDay();
+  int temp2=params.getTriggerEndDay(); // RGB set an end to the lock-down.
   if (temp>=0) {
     nTriggerTime = 2*temp+1; // force the response to occur on specified day
     bTrigger=true;
+    nTriggerEndTime = nTriggerTime + 2*temp2+1; // RGB end the lockdown at this time.
   }
   nAscertainmentDelay = params.getAscertainmentDelay();
   fSymptomaticAscertainment=params.getAscertainmentFraction();
@@ -720,7 +723,7 @@ void EpiModel::read_workflow(void)
       }
     }
   }
-  delete flow;
+  delete [] flow;
 
 #ifdef PARALLEL
   // exchange data for inter-node workers
@@ -969,7 +972,7 @@ void EpiModel::create_families(Community& comm, int nTargetSize) {
 	agegroups[2] = 1;
       else
 	agegroups[1] = 1;
-    } else if (0.644752) { // two-person household
+    } else if (r<0.644752) { // two-person household
       if (r<0.36999353) {    // two elderly
 	agegroups[4] = 2;
       } else if (r<0.40839691) {  // elderly+old
@@ -1312,7 +1315,7 @@ void EpiModel::infect(Person& p) {
     else
       setWithdrawDays(p,0); // will not withdraw
 
-    if (bTrigger && nTimer>=nTriggerTime &&
+    if (bTrigger && nTimer>=nTriggerTime &&  // ill people continue to withdraw even after end of lockdown.
 	(getWithdrawDays(p)==0 || // doesn't voluntarily withdraw
 	 getWithdrawDays(p)-getIncubationDays(p)>1)) { // would withdraw later after more than one day
       if ((fLiberalLeaveCompliance>0.0 && isWorkingAge(p) && p.nWorkplace>0 && get_rand_double<fLiberalLeaveCompliance) || // on liberal leave
@@ -1326,6 +1329,22 @@ void EpiModel::infect(Person& p) {
     setWithdrawDays(p,0);   // note: withdraw days is only checked when symptomatic,
                             // so 0 withdraw days should be ok.
   }
+  
+  //RGB added this section that gets people to withdraw at start of the lockdown, even if not ill.
+  if (bTrigger && nTimer==nTriggerTime) {
+      if ((fLiberalLeaveCompliance>0.0 && isWorkingAge(p) && p.nWorkplace>0 && get_rand_double<fLiberalLeaveCompliance) || // on liberal leave
+	  (fIsolationCompliance>0.0 && get_rand_double<fIsolationCompliance)) { // voluntary isolation
+	setWithdrawn(p); // stay home the day after symptom onset
+      }
+  }
+  
+  //RGB added this section to clear non-sympomatic people from withdrawn at the end of the lock down.
+  if (bTrigger && nTimer==nTriggerEndTime) {
+    if ( !isSymptomatic(p) && !isQuarantined(p)) {
+      clearWithdrawn(p);
+    }
+  }
+      
   if (p.nTravelTimer<=0) {
 #ifdef PARALLEL
     if (p.nWorkRank!=rank)
@@ -2157,7 +2176,9 @@ void EpiModel::travel_start(void) {
     Person &p = *it;
     // This is inefficient!  try using a binomial to compute the number
     // of travelers.
-    if (p.nTravelTimer<=0 && !isQuarantined(p) && get_rand_double < travel_pr[p.age]) {
+
+    // ***RGB** it seems that you can travel even if withdrawn!! Corrected below.
+    if (p.nTravelTimer<=0 && !isQuarantined(p) && !isWithdrawn(p) && get_rand_double < travel_pr[p.age]) {
       // We're going to DisneyWorld!
       double r = get_rand_double;
       int i;

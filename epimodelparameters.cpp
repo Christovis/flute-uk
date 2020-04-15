@@ -448,6 +448,8 @@ bool EpiModelParameters::readConfigFile(const char *configname) {
 	    read_config_int(nTriggerDelay, iss, "response delay");
 	} else if (param.compare("responseday")==0) {
 	    read_config_int(nTriggerDay, iss, "response day");
+	} else if (param.compare("responseday")==0) {
+	    read_config_int(nTriggerEndDay, iss, "response end day");
 	} else if (param.compare("ascertainmentdelay")==0) {
 	    read_config_int(nAscertainmentDelay, iss, "ascertainment delay");
 	} else if (param.compare("ascertainmentfraction")==0) {
@@ -579,7 +581,7 @@ bool EpiModelParameters::readConfigFile(const char *configname) {
 		cerr << "WARNING: Vaccine efficacy is not defined on day " << i << " for vaccine " << nID << "." << endl;
 	      }
 	    }
-	} else if (!param.compare("")==0) {
+	} else if (!(param.compare("")==0)) {
 #ifdef PARALLEL
 	  if (!rank)
 #endif

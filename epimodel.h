@@ -498,6 +498,7 @@ class EpiModel {
   // intervention parameters
   int bTrigger;                     // has the trigger for response been reached
   int nTriggerTime;                 // time when reactive strategies are deployed everywhere
+  int nTriggerEndTime;              // RGB time when reactive strategy ends
   int nTriggerDelay;                // days between trigger and response
   double fResponseThreshhold;       // fraction of ever infecteds before reaction
   int nAscertainmentDelay;          // days between symptomatic and ascertainment

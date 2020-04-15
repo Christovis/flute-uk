@@ -1,0 +1,21 @@
+Flute notes
+
+Turn off the reactive response triggering and set the response to trigger at a particular day.
+	responsethreshhold 1.0  
+	responseday 30
+Before this day, a fraction of people will voluntarily withdraw **after they have symptoms**. This represents ‘normal’ behaviour.
+After this day, if not already withdrawn, they withdraw on liberal leave or voluntary isolation. BUT still only if they have symptoms. 
+Withdrawn occurs on after the incubation days plus ascertainment delay. If symptomatic, quarantine the whole family.
+	Need to move this to apply to non-sick people, see line 1319.
+	Need to add a mechanism to switch the trigger off. Added a new variable nTriggerEndTime that sets the end time of lock down, and parameter TriggerEndDay
+
+What does the code do after the WithdrawDays are up?  If the day counter is more than VLOADDAY it is reset to zero. Withdrawn is cleared. And number of infected is updated. The person’s status is set to recovered. Its assumed that you stop with drawing, but this is OK since you’re recovered. Since withdraw days are not considered in recovery, it is not a problem to set people to withdrawn if not infected.
+	Need to add a mechanism to set (some) people to withdrawn (regardless of infection) on the Trigger day. Can call setWithdrawn directly. They will not be cleared if isInfected==False
+
+Traveller return home when p.nTravelTimer reaches zero. 
+	Need to add function to set bTravel=False on trigger day and to return existing travellers. Is a better strategy to just reduce the amount of travel on the trigger day.  This is done in travel_start, using array travel_pr[p.age] … multiply this by a factor during lockdown. The probabliilites are set in params.cpp. (which contains the ‘hidden’ parameters).   
+	This is not required if we modify code so that withdrawn people do not travel. Some fraction of people that ignore the lock down and do not withdraw, and will still travel.
+	** I do not understand why people who are Withdrawn seem to be able to travel, but not people who’re quarantined.
+
+To compile on my Mac, I had to make some small changes to the make file (remove in-line parameters), avoid including malloc.h, for consistency use delete [] for flow array. F
+** ixed a typo in the house random numbers, which meant excessive numbers of 2 house population.
