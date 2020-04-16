@@ -21,6 +21,7 @@ ascertainmentdelay 0     # withdraw immediately symptomatic.
 ascertainmentfraction 0.8  # fits with Diamond Princess incident
 reactivestrategy none
 responseday 30
+endresponseday 30
 schoolclosurepolicy all
 schoolclosuredays 30
 travel 0                # set this to 1 to allow travel. 

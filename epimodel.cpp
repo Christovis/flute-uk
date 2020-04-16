@@ -156,7 +156,11 @@ EpiModel::EpiModel(EpiModelParameters &params) {
   if (temp>=0) {
     nTriggerTime = 2*temp+1; // force the response to occur on specified day
     bTrigger=true;
-    nTriggerEndTime = nTriggerTime + 2*temp2+1; // RGB end the lockdown at this time.
+    if (temp2>0) {
+      nTriggerEndTime = nTriggerTime + 2*temp2; // RGB end the lockdown at this time.
+    } else {
+      nTriggerEndTime = MAXRUNLENGTH * 2;
+	}
   }
   nAscertainmentDelay = params.getAscertainmentDelay();
   fSymptomaticAscertainment=params.getAscertainmentFraction();
@@ -938,6 +942,7 @@ void EpiModel::create_families(Community& comm, int nTargetSize) {
   comm.nNumResidents=0;
   memset(comm.ninf, 0, TAG*sizeof(int));
   memset(comm.nsym, 0, TAG*sizeof(int));
+  memset(comm.nWithdrawn, 0, TAG*sizeof(int));
   memset(comm.nEverInfected, 0, TAG*sizeof(int));
   memset(comm.nEverSymptomatic, 0, TAG*sizeof(int));
   memset(comm.nEverAscertained, 0, TAG*sizeof(int));
@@ -1330,20 +1335,6 @@ void EpiModel::infect(Person& p) {
                             // so 0 withdraw days should be ok.
   }
   
-  //RGB added this section that gets people to withdraw at start of the lockdown, even if not ill.
-  if (bTrigger && nTimer==nTriggerTime) {
-      if ((fLiberalLeaveCompliance>0.0 && isWorkingAge(p) && p.nWorkplace>0 && get_rand_double<fLiberalLeaveCompliance) || // on liberal leave
-	  (fIsolationCompliance>0.0 && get_rand_double<fIsolationCompliance)) { // voluntary isolation
-	setWithdrawn(p); // stay home the day after symptom onset
-      }
-  }
-  
-  //RGB added this section to clear non-sympomatic people from withdrawn at the end of the lock down.
-  if (bTrigger && nTimer==nTriggerEndTime) {
-    if ( !isSymptomatic(p) && !isQuarantined(p)) {
-      clearWithdrawn(p);
-    }
-  }
       
   if (p.nTravelTimer<=0) {
 #ifdef PARALLEL
@@ -1360,6 +1351,7 @@ void EpiModel::infect(Person& p) {
       ++commvec[p.nHomeComm].nEverInfected[p.age];
     }
   }
+
 }
 
 /*
@@ -1827,7 +1819,7 @@ void EpiModel::night(void) {
 	  nightinfectsusceptibles(p, comm);
       }
     }
-
+   
     // check for infectious travelers
     if (bTravel) {
       list< Person >::iterator vend=comm.visitors.end();
@@ -1885,8 +1877,10 @@ void EpiModel::night(void) {
 	  if (isSymptomatic(p))
 	    comm.nsym[p.age]--;
 	  p.status &= ~(SUSCEPTIBLE|INFECTED|SYMPTOMATIC); // recovered
-	  clearWithdrawn(p); // recovered
 	  comm.ninf[p.age]--;
+	  if ( isWithdrawn(p) && (nTimer>nTriggerEndTime || nTimer<=nTriggerTime)) {  // recovered, no longer withdrawn. (RGB only if not in lockdown)
+	    clearWithdrawn(p); 
+	  }
 	  p.iday=0;
 	}
       }
@@ -1921,6 +1915,36 @@ void EpiModel::night(void) {
       }
     }
 
+    // RGB loop over all the people implementing lockdown.
+    for (unsigned int pid=comm.nFirstPerson;
+	   pid<comm.nLastPerson;
+	   pid++) {
+      Person &p = pvec[pid];
+      //RGB added this section that gets people to withdraw at start of the lockdown, even if not ill.
+      if (bTrigger && nTimer==nTriggerTime) {
+	if ((fLiberalLeaveCompliance>0.0 && isWorkingAge(p) && p.nWorkplace>0 && get_rand_double<fLiberalLeaveCompliance) || // on liberal leave
+	    (fIsolationCompliance>0.0 && get_rand_double<fIsolationCompliance)) { // voluntary isolation
+	  setWithdrawn(p); // stay home tomorrow until lock down ends
+	  if (pid==comm.nFirstPerson) {
+	    cout << "setting withdrawn for person " << pid << "EndTriggerTime "<< nTriggerEndTime << endl ;
+	  }
+	}
+      }
+      //RGB added this section to clear non-sympomatic people from withdrawn at the end of the lock down.
+      if (bTrigger && nTimer==nTriggerEndTime) {
+	if ( !isSymptomatic(p) && !isQuarantined(p)) {
+	  clearWithdrawn(p);
+	  if (pid==comm.nFirstPerson) {
+	    cout << "clearing withdrawn for person " << pid << endl ;
+	  }
+	}
+      }
+      // RGB count the number of people that are withdrawn on this night.
+      if (isWithdrawn(p)) {                 
+	++commvec[p.nHomeComm].nWithdrawn[p.age];
+      }
+    }
+       
     // update visitors
     if (bTravel) {
       list< Person >::iterator vend=comm.visitors.end();
@@ -2026,6 +2050,7 @@ void EpiModel::travel_end(void) {
 	    if (isSymptomatic(p) && !isSymptomatic(original)) {
 	      ++commvec[original.nHomeComm].nEverSymptomatic[original.age];
 	      ++commvec[original.nHomeComm].nsym[original.age];
+              // RGB shouldn't infected travers be withdrawn when they are home?
 	    }
 	  } else if (isInfected(original)) {
 	    --commvec[original.nHomeComm].ninf[original.age]; // got better on vacation
@@ -2382,6 +2407,7 @@ void EpiModel::response(void) {
 	if (!isSchoolClosed(t,1)) {
 	  for (int i=0; i<9; i++)
 	    setSchoolClosed(t,i);// activate school closures
+	  cout << "Schools closed on day " << (nTriggerTime/2) << endl;
 	  t.nSchoolClosureTimer=nSchoolClosureDays;
 	}
       }

@@ -448,7 +448,7 @@ bool EpiModelParameters::readConfigFile(const char *configname) {
 	    read_config_int(nTriggerDelay, iss, "response delay");
 	} else if (param.compare("responseday")==0) {
 	    read_config_int(nTriggerDay, iss, "response day");
-	} else if (param.compare("responseday")==0) {
+	} else if (param.compare("endresponseday")==0) {
 	    read_config_int(nTriggerEndDay, iss, "response end day");
 	} else if (param.compare("ascertainmentdelay")==0) {
 	    read_config_int(nAscertainmentDelay, iss, "ascertainment delay");

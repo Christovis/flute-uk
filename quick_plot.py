@@ -6,7 +6,8 @@ import pylab as P
 import pandas as PD
 import geopandas as GPD
 
-flute_dir= "./northeast-close-schools/"
+#flute_dir= "./northeast-close-schools/"
+flute_dir= "./"
 home_dir="./"
 
 log = PD.read_csv(
