@@ -5,6 +5,7 @@
  * Shufu Xu
  * 11.01.2006
  * Modified and recalibrated by Dennis Chao (April 2010)
+ * Modified and recalibrated for UK by Christoph Becker (April 2020)
  */
 
 #include <climits>
@@ -33,7 +34,7 @@ const double withdrawprob[3][WITHDRAWDAYS] = {
 // self isolation probabilities by age
 const double isolationprob[TAG] = {0.8,0.75,0.5,0.5,0.5};
 
-const int nQuarantineLength = 7; // length of quarantine in days
+const int nQuarantineLength = 14; // length of quarantine in days
 const int nAntiviralCourseSize = 10; // number of pills in one antiviral course (1 tablet/day for prophylaxis and 2 tablets/day for treatment)
 const double fStopAntiviralTwoPills = 0.05; // probability that individuals taking antivirals stop after exactly two pills
 
@@ -41,13 +42,9 @@ const double fStopAntiviralTwoPills = 0.05; // probability that individuals taki
 const double incubationcdf[3] = {0.3, 0.8, 1.0};
 
 // viral load trajectories
+// source: https://doi.org/10.1038/s41591-020-0869-5
 const double basevload[VLOADNSUB][VLOADNDAY] = {
-	{2.0, 5.5, 4.0, 5.5, 3.0, 0.5},
-	{1.0, 6.0, 3.0, 1.5, 3.5, 1.3},
-	{2.5, 5.0, 5.0, 3.0, 5.5, 3.5},
-	{3.5, 5.5, 6.5, 5.5, 3.5, 4.0},
-	{2.5, 3.0, 6.5, 6.5, 2.0, 0.8},
-	{4.0, 5.0, 5.5, 7.5, 5.5, 1.3}
+	{9.0, 8.5, 8.0, 7.5, 7.0, 6.5, 6.0, 5.5, 5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5}
 };
 
 // travel data
@@ -73,8 +70,8 @@ double const travel_length_cdf[12] = {
     1.0
 }; // cdf of length of trip in days (nights away from home)
 
-// Source: US International Air Passenger and Freight Statistics, June 2008
-// Biggest airports of the USA
+// Source: "CAA Airport Data 2018". caa.co.uk. UK Civil Aviation Authority. 13 March 2019. Retrieved 13 March 2019.
+// Biggest airports of the England and Wales
 // last three digits = LAD11CD id
 // first digits = RGN17CD id
 const unsigned int FIPS_hubs[] = {
