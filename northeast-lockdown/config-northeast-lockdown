@@ -25,9 +25,9 @@ endresponseday 30
 schoolclosurepolicy all
 schoolclosuredays 30
 travel 0                # set this to 1 to allow travel. 
-isolation 0.9
-quarantine 0.9
-liberalleave 0.8
+isolation 0.7
+quarantine 0.7
+liberalleave 0.6
 # Population Setting
 essentialfraction 0.1
 pregnantfraction 0 0 0.02771 0.02069 0

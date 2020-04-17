@@ -146,6 +146,49 @@ def plot_by_age():
     P.legend(loc='best')
 
 
+def plot_withdrawn_by_age():
+    """plot number of withdrawn individuals by tract and age"""
+
+    time_list= N.unique(log["time"].values)
+    totals = log.groupby(["time"]).sum()
+
+    P.plot(
+            time_list,
+            totals["Withd0-4"].values,
+            label="0-4"
+        )    
+    P.plot(
+            time_list,
+            totals["Withd5-18"].values,
+            label="5-18"
+        )    
+    P.plot(
+            time_list,
+            totals["Withd19-29"].values,
+            label="19-29"
+        )    
+    P.plot(
+            time_list,
+            totals["Withd30-64"].values,
+            label="30-64"
+        )    
+    P.plot(
+            time_list,
+            totals["Withd65+"].values,
+            label="65+"
+        )    
+
+    P.xlim([0, 180])
+    P.xlabel(r'time  [days]', fontsize=16)
+    P.ylabel(r'withdrawn individuals', fontsize=16)
+    P.title(r"North East")
+    P.legend(loc='best')
+
+
+
+    
 plot_by_age()
 P.savefig( flute_dir+"plot_by_age.png" )
+plot_withdrawn_by_age()
+P.savefig( flute_dir+"plot_withdrawn_by_age.png" )
 P.show()

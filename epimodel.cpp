@@ -310,7 +310,8 @@ EpiModel::EpiModel(EpiModelParameters &params) {
     logfile = params.getLogFile();
     if ((*logfile) && (*logfile).good()) {
       ostream &out = *logfile;
-      out << "time,TractID,sym0-4,sym5-18,sym19-29,sym30-64,sym65+,cumsym0-4,cumsym5-18,cumsym19-29,cumsym30-64,cumsym65+" << endl;
+      out << "time,TractID,sym0-4,sym5-18,sym19-29,sym30-64,sym65+,cumsym0-4,cumsym5-18,cumsym19-29,cumsym30-64,cumsym65+,"
+	  << "Withd0-4,Withd5-18,Withd19-29,Withd30-64,Withd65+" << endl;
     }
     individualsfile = params.getIndividualsFile();
     sumfile = params.getSummaryFile();
@@ -2362,6 +2363,9 @@ void EpiModel::response(void) {
 	setSchoolOpen(t,i);// schools open today
       t.nSchoolClosureTimer=0;
     }
+    if ( it == tractvec.begin()) {
+      if (isSchoolClosed(t,1))  cout << "Schools closed on day " << (nTimer/2) << endl;
+	  }
   }
 
   // 1. Count cumulative number of ascertained cases
@@ -2407,7 +2411,6 @@ void EpiModel::response(void) {
 	if (!isSchoolClosed(t,1)) {
 	  for (int i=0; i<9; i++)
 	    setSchoolClosed(t,i);// activate school closures
-	  cout << "Schools closed on day " << (nTriggerTime/2) << endl;
 	  t.nSchoolClosureTimer=nSchoolClosureDays;
 	}
       }
@@ -2508,7 +2511,7 @@ void EpiModel::response(void) {
 	if (isSchoolClosed(t,1) &&                       // school is closed
 	    --t.nSchoolClosureTimer<=0 &&                // school closure is not in effect anymore
 	    nSchoolOpeningDays[t.fips_state-1]-1<=nTimer/2) { // school should be open
-	  cout << "School open on day " << nTimer/2 << ", time " << nTimer << endl;
+	  if (it == tractvec.begin()) cout << "School open on day " << nTimer/2 << ", time " << nTimer << endl;
 	  for (int i=0; i<9; i++)
 	    setSchoolOpen(t,i);// school is open again
 	}
@@ -2888,18 +2891,22 @@ void EpiModel::log(void) {
     out << int(nTimer/2) << "," << t.id;
     int nsym[TAG],      // current symptomatic prevalence
       ncsym[TAG];	// cumulative symptomatic attack rate
+    int nwithd[TAG] ;   // RGB number withdrawn.  (quarantine is separate)
     memset(nsym, 0, sizeof(int)*TAG);
     memset(ncsym, 0, sizeof(int)*TAG);
     for (unsigned int i=t.nFirstCommunity; i<t.nLastCommunity; i++) {
       for (int j=0; j<TAG; j++) {
 	nsym[j] += commvec[i].nsym[j];
 	ncsym[j] += commvec[i].nEverSymptomatic[j];
+	nwithd[j] += commvec[i].nWithdrawn[j];
       }
     }
     for (int j=0; j<TAG; j++)
       out << "," << nsym[j];
     for (int j=0; j<TAG; j++)
       out << "," << ncsym[j];
+    for (int j=0; j<TAG; j++)
+      out << "," << nwithd[j];
     out << endl;
   }
 
