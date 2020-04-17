@@ -1932,18 +1932,12 @@ void EpiModel::night(void) {
 	if ((fLiberalLeaveCompliance>0.0 && isWorkingAge(p) && p.nWorkplace>0 && get_rand_double<fLiberalLeaveCompliance) || // on liberal leave
 	    (fIsolationCompliance>0.0 && !(isWorkingAge(p) && p.nWorkplace>0) &&get_rand_double<fIsolationCompliance)) { // voluntary isolation
 	  setWithdrawn(p); // stay home tomorrow until lock down ends
-	  if (pid==comm.nFirstPerson) {
-	    cout << "setting withdrawn for person " << pid << "EndTriggerTime "<< nTriggerEndTime << endl ;
-	  }
 	}
       }
       //RGB added this section to clear non-sympomatic people from withdrawn at the end of the lock down.
       if (bTrigger && nTimer==nTriggerEndTime) {
 	if ( !isSymptomatic(p) && !isQuarantined(p)) {
 	  clearWithdrawn(p);
-	  if (pid==comm.nFirstPerson) {
-	    cout << "clearing withdrawn for person " << pid << endl ;
-	  }
 	}
       }
       // RGB count the number of people that are withdrawn on this night.
