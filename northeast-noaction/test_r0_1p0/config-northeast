@@ -4,22 +4,24 @@
 individualfile 1
 label example_northeast
 datafile northeast
-summaryfilename northeast_summary
+summaryfilename northeast-noaction/test_r0_1p0/northeast_summary
 logfile 1
-logfilename northeast_log
-tractfilename northeast_tracts
+logfilename northeast-noaction/test_r0_1p0/northeast_log
+tractfilename northeast-noaction/test_r0_1p0/northeast_tracts
 # Simulation Settings
-runlength 90
+runlength 180
 # Virus Parameters
-R0 3.0 # lock-down=[0.3,0.8], nothing=[2,3.5]
+R0 1.0 # lock-down=[0.3,0.8], nothing=[2,3.5]
 # Preparedness Settings
 prestrategy none
 preexistingimmunitylevel 0.0
 # Reaction Parameters
 responsethreshhold 1.0   # switch off triggered response
-ascertainment-delay 1
+ascertainmentdelay 1
 ascertainmentfraction 0.8  # fits with Diamond Princess incident
 reactivestrategy none
+responseday 180
+endresponseday 30
 schoolclosurepolicy none
 schoolclosuredays 0
 travel 0 # should be set to 1 if simulating the continental US

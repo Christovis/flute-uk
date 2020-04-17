@@ -1879,7 +1879,7 @@ void EpiModel::night(void) {
 	    comm.nsym[p.age]--;
 	  p.status &= ~(SUSCEPTIBLE|INFECTED|SYMPTOMATIC); // recovered
 	  comm.ninf[p.age]--;
-	  if ( isWithdrawn(p) && (nTimer>nTriggerEndTime || nTimer<=nTriggerTime)) {  // recovered, no longer withdrawn. (RGB only if not in lockdown)
+	  if ( isWithdrawn(p) && ( (nTimer>=nTriggerEndTime || nTimer<nTriggerTime) || !bTrigger) ) {  // recovered, no longer withdrawn. (RGB only if not in lockdown)
 	    clearWithdrawn(p); 
 	  }
 	  p.iday=0;
