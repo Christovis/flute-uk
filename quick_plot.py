@@ -10,6 +10,10 @@ import geopandas as GPD
 flute_dir= "./"
 home_dir="./"
 
+# total population ... need to find a neat way to read this from the summary file. Hardwire for NothEast for now.
+total_pop = N.array([158627,521126,343960,1279055,355487])
+
+
 log = PD.read_csv(
     flute_dir + "northeast_log",
     delimiter=',',
@@ -18,6 +22,8 @@ log = PD.read_csv(
 )
 log["sym0-inf"] = log[["sym0-4","sym5-18","sym19-29","sym30-64","sym65+"]].sum(axis=1)
 
+
+print(log)
 
 flute_id = PD.read_csv(
     flute_dir + "northeast_tracts",
@@ -154,41 +160,43 @@ def plot_withdrawn_by_age():
 
     P.plot(
             time_list,
-            totals["Withd0-4"].values,
+            totals["Withd0-4"].values/total_pop[0],
             label="0-4"
         )    
     P.plot(
             time_list,
-            totals["Withd5-18"].values,
+            totals["Withd5-18"].values/total_pop[1],
             label="5-18"
         )    
     P.plot(
             time_list,
-            totals["Withd19-29"].values,
+            totals["Withd19-29"].values/total_pop[2],
             label="19-29"
         )    
     P.plot(
             time_list,
-            totals["Withd30-64"].values,
+            totals["Withd30-64"].values/total_pop[3],
             label="30-64"
         )    
     P.plot(
             time_list,
-            totals["Withd65+"].values,
+            totals["Withd65+"].values/total_pop[4],
             label="65+"
         )    
 
     P.xlim([0, 180])
     P.xlabel(r'time  [days]', fontsize=16)
-    P.ylabel(r'withdrawn individuals', fontsize=16)
+    P.ylabel(r'fraction withdrawn individuals', fontsize=16)
     P.title(r"North East")
     P.legend(loc='best')
 
 
 
-    
+P.figure()
 plot_by_age()
 P.savefig( flute_dir+"plot_by_age.png" )
+
+P.figure()
 plot_withdrawn_by_age()
 P.savefig( flute_dir+"plot_withdrawn_by_age.png" )
 P.show()

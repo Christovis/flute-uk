@@ -1917,6 +1917,9 @@ void EpiModel::night(void) {
     }
 
     // RGB loop over all the people implementing lockdown.
+    for (int j=0; j<TAG; j++) {
+      comm.nWithdrawn[j] = 0 ;
+    }
     for (unsigned int pid=comm.nFirstPerson;
 	   pid<comm.nLastPerson;
 	   pid++) {
@@ -1942,7 +1945,7 @@ void EpiModel::night(void) {
       }
       // RGB count the number of people that are withdrawn on this night.
       if (isWithdrawn(p)) {                 
-	++commvec[p.nHomeComm].nWithdrawn[p.age];
+	++comm.nWithdrawn[p.age];
       }
     }
        
@@ -2894,6 +2897,7 @@ void EpiModel::log(void) {
     int nwithd[TAG] ;   // RGB number withdrawn.  (quarantine is separate)
     memset(nsym, 0, sizeof(int)*TAG);
     memset(ncsym, 0, sizeof(int)*TAG);
+    memset(nwithd, 0, sizeof(int)*TAG);
     for (unsigned int i=t.nFirstCommunity; i<t.nLastCommunity; i++) {
       for (int j=0; j<TAG; j++) {
 	nsym[j] += commvec[i].nsym[j];
