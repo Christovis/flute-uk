@@ -1925,9 +1925,12 @@ void EpiModel::night(void) {
 	   pid++) {
       Person &p = pvec[pid];
       //RGB added this section that gets people to withdraw at start of the lockdown, even if not ill.
+      // the original logic here, meant working age people were more likely to withdraw than others (they have two chances)
+      // We modify the lockdown strategy to mean that isolation compliance only applied to non workers.
+      // *** the strategy for symptomatic individual is unchanged - so workers are more likely to comply if sympomatic.
       if (bTrigger && nTimer==nTriggerTime) {
 	if ((fLiberalLeaveCompliance>0.0 && isWorkingAge(p) && p.nWorkplace>0 && get_rand_double<fLiberalLeaveCompliance) || // on liberal leave
-	    (fIsolationCompliance>0.0 && get_rand_double<fIsolationCompliance)) { // voluntary isolation
+	    (fIsolationCompliance>0.0 && !(isWorkingAge(p) && p.nWorkplace>0) &&get_rand_double<fIsolationCompliance)) { // voluntary isolation
 	  setWithdrawn(p); // stay home tomorrow until lock down ends
 	  if (pid==comm.nFirstPerson) {
 	    cout << "setting withdrawn for person " << pid << "EndTriggerTime "<< nTriggerEndTime << endl ;
