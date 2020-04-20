@@ -39,7 +39,7 @@ const int nAntiviralCourseSize = 10; // number of pills in one antiviral course 
 const double fStopAntiviralTwoPills = 0.05; // probability that individuals taking antivirals stop after exactly two pills
 
 // cdf of duration for incubation period in days
-const double incubationcdf[3] = {0.3, 0.8, 1.0};
+const double incubationcdf[3] = {0.01, 0.05, 0.18, 0.38, 0.54, 0.7, 0.87, 0.9, 0.92, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0};
 
 // viral load trajectories
 // source: https://doi.org/10.1038/s41591-020-0869-5
