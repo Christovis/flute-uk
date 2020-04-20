@@ -340,6 +340,7 @@ struct Community {
   int nNumAge[TAG];	 // number of residents in different age groups
   int ninf[TAG];	 // number of residents currently infected
   int nsym[TAG];	 // number of residents currently symptomatic
+  int nWithdrawn[TAG];   // number of residents withdrawn
   int nEverInfected[TAG];// number of residents ever infected
   int nEverSymptomatic[TAG]; // number of residents ever symptomatic
   int nEverAscertained[TAG]; // number of residents ever ascertained
@@ -498,6 +499,7 @@ class EpiModel {
   // intervention parameters
   int bTrigger;                     // has the trigger for response been reached
   int nTriggerTime;                 // time when reactive strategies are deployed everywhere
+  int nTriggerEndTime;              // RGB time when reactive strategy ends
   int nTriggerDelay;                // days between trigger and response
   double fResponseThreshhold;       // fraction of ever infecteds before reaction
   int nAscertainmentDelay;          // days between symptomatic and ascertainment

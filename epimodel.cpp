@@ -17,7 +17,7 @@ extern "C" {
 #include "params.h"
 #include "epimodel.h"
 #include "epimodelparameters.h"
-#include <malloc.h> 
+// RGB not required? #include <malloc.h> 
 
 using namespace std;
 
@@ -92,6 +92,7 @@ EpiModel::EpiModel(EpiModelParameters &params) {
   nNumTAPDone=0;
   nNumWantAV = nNumWantVaccine = 0;
   nTriggerTime=INT_MAX;
+  nTriggerEndTime=INT_MAX;
   bTrigger=false;
   nTimer = 0;
 
@@ -151,9 +152,15 @@ EpiModel::EpiModel(EpiModelParameters &params) {
     bTrigger=true;
   }
   int temp=params.getTriggerDay();
+  int temp2=params.getTriggerEndDay(); // RGB set an end to the lock-down.
   if (temp>=0) {
     nTriggerTime = 2*temp+1; // force the response to occur on specified day
     bTrigger=true;
+    if (temp2>0) {
+      nTriggerEndTime = nTriggerTime + 2*temp2; // RGB end the lockdown at this time.
+    } else {
+      nTriggerEndTime = MAXRUNLENGTH * 2;
+	}
   }
   nAscertainmentDelay = params.getAscertainmentDelay();
   fSymptomaticAscertainment=params.getAscertainmentFraction();
@@ -303,7 +310,8 @@ EpiModel::EpiModel(EpiModelParameters &params) {
     logfile = params.getLogFile();
     if ((*logfile) && (*logfile).good()) {
       ostream &out = *logfile;
-      out << "time,TractID,sym0-4,sym5-18,sym19-29,sym30-64,sym65+,cumsym0-4,cumsym5-18,cumsym19-29,cumsym30-64,cumsym65+" << endl;
+      out << "time,TractID,sym0-4,sym5-18,sym19-29,sym30-64,sym65+,cumsym0-4,cumsym5-18,cumsym19-29,cumsym30-64,cumsym65+,"
+	  << "Withd0-4,Withd5-18,Withd19-29,Withd30-64,Withd65+" << endl;
     }
     individualsfile = params.getIndividualsFile();
     sumfile = params.getSummaryFile();
@@ -720,7 +728,7 @@ void EpiModel::read_workflow(void)
       }
     }
   }
-  delete flow;
+  delete [] flow;
 
 #ifdef PARALLEL
   // exchange data for inter-node workers
@@ -935,6 +943,7 @@ void EpiModel::create_families(Community& comm, int nTargetSize) {
   comm.nNumResidents=0;
   memset(comm.ninf, 0, TAG*sizeof(int));
   memset(comm.nsym, 0, TAG*sizeof(int));
+  memset(comm.nWithdrawn, 0, TAG*sizeof(int));
   memset(comm.nEverInfected, 0, TAG*sizeof(int));
   memset(comm.nEverSymptomatic, 0, TAG*sizeof(int));
   memset(comm.nEverAscertained, 0, TAG*sizeof(int));
@@ -969,7 +978,7 @@ void EpiModel::create_families(Community& comm, int nTargetSize) {
 	agegroups[2] = 1;
       else
 	agegroups[1] = 1;
-    } else if (0.644752) { // two-person household
+    } else if (r<0.644752) { // two-person household
       if (r<0.36999353) {    // two elderly
 	agegroups[4] = 2;
       } else if (r<0.40839691) {  // elderly+old
@@ -1312,7 +1321,7 @@ void EpiModel::infect(Person& p) {
     else
       setWithdrawDays(p,0); // will not withdraw
 
-    if (bTrigger && nTimer>=nTriggerTime &&
+    if (bTrigger && nTimer>=nTriggerTime &&  // ill people continue to withdraw even after end of lockdown.
 	(getWithdrawDays(p)==0 || // doesn't voluntarily withdraw
 	 getWithdrawDays(p)-getIncubationDays(p)>1)) { // would withdraw later after more than one day
       if ((fLiberalLeaveCompliance>0.0 && isWorkingAge(p) && p.nWorkplace>0 && get_rand_double<fLiberalLeaveCompliance) || // on liberal leave
@@ -1326,6 +1335,8 @@ void EpiModel::infect(Person& p) {
     setWithdrawDays(p,0);   // note: withdraw days is only checked when symptomatic,
                             // so 0 withdraw days should be ok.
   }
+  
+      
   if (p.nTravelTimer<=0) {
 #ifdef PARALLEL
     if (p.nWorkRank!=rank)
@@ -1341,6 +1352,7 @@ void EpiModel::infect(Person& p) {
       ++commvec[p.nHomeComm].nEverInfected[p.age];
     }
   }
+
 }
 
 /*
@@ -1808,7 +1820,7 @@ void EpiModel::night(void) {
 	  nightinfectsusceptibles(p, comm);
       }
     }
-
+   
     // check for infectious travelers
     if (bTravel) {
       list< Person >::iterator vend=comm.visitors.end();
@@ -1866,8 +1878,10 @@ void EpiModel::night(void) {
 	  if (isSymptomatic(p))
 	    comm.nsym[p.age]--;
 	  p.status &= ~(SUSCEPTIBLE|INFECTED|SYMPTOMATIC); // recovered
-	  clearWithdrawn(p); // recovered
 	  comm.ninf[p.age]--;
+	  if ( isWithdrawn(p) && ( (nTimer>=nTriggerEndTime || nTimer<nTriggerTime) || !bTrigger) ) {  // recovered, no longer withdrawn. (RGB only if not in lockdown)
+	    clearWithdrawn(p); 
+	  }
 	  p.iday=0;
 	}
       }
@@ -1902,6 +1916,36 @@ void EpiModel::night(void) {
       }
     }
 
+    // RGB loop over all the people implementing lockdown.
+    for (int j=0; j<TAG; j++) {
+      comm.nWithdrawn[j] = 0 ;
+    }
+    for (unsigned int pid=comm.nFirstPerson;
+	   pid<comm.nLastPerson;
+	   pid++) {
+      Person &p = pvec[pid];
+      //RGB added this section that gets people to withdraw at start of the lockdown, even if not ill.
+      // the original logic here, meant working age people were more likely to withdraw than others (they have two chances)
+      // We modify the lockdown strategy to mean that isolation compliance only applied to non workers.
+      // *** the strategy for symptomatic individual is unchanged - so workers are more likely to comply if sympomatic.
+      if (bTrigger && nTimer==nTriggerTime) {
+	if ((fLiberalLeaveCompliance>0.0 && isWorkingAge(p) && p.nWorkplace>0 && get_rand_double<fLiberalLeaveCompliance) || // on liberal leave
+	    (fIsolationCompliance>0.0 && !(isWorkingAge(p) && p.nWorkplace>0) &&get_rand_double<fIsolationCompliance)) { // voluntary isolation
+	  setWithdrawn(p); // stay home tomorrow until lock down ends
+	}
+      }
+      //RGB added this section to clear non-sympomatic people from withdrawn at the end of the lock down.
+      if (bTrigger && nTimer==nTriggerEndTime) {
+	if ( !isSymptomatic(p) && !isQuarantined(p)) {
+	  clearWithdrawn(p);
+	}
+      }
+      // RGB count the number of people that are withdrawn on this night.
+      if (isWithdrawn(p)) {                 
+	++comm.nWithdrawn[p.age];
+      }
+    }
+       
     // update visitors
     if (bTravel) {
       list< Person >::iterator vend=comm.visitors.end();
@@ -2007,6 +2051,7 @@ void EpiModel::travel_end(void) {
 	    if (isSymptomatic(p) && !isSymptomatic(original)) {
 	      ++commvec[original.nHomeComm].nEverSymptomatic[original.age];
 	      ++commvec[original.nHomeComm].nsym[original.age];
+              // RGB shouldn't infected travers be withdrawn when they are home?
 	    }
 	  } else if (isInfected(original)) {
 	    --commvec[original.nHomeComm].ninf[original.age]; // got better on vacation
@@ -2157,7 +2202,9 @@ void EpiModel::travel_start(void) {
     Person &p = *it;
     // This is inefficient!  try using a binomial to compute the number
     // of travelers.
-    if (p.nTravelTimer<=0 && !isQuarantined(p) && get_rand_double < travel_pr[p.age]) {
+
+    // ***RGB** it seems that you can travel even if withdrawn!! Corrected below.
+    if (p.nTravelTimer<=0 && !isQuarantined(p) && !isWithdrawn(p) && get_rand_double < travel_pr[p.age]) {
       // We're going to DisneyWorld!
       double r = get_rand_double;
       int i;
@@ -2316,6 +2363,9 @@ void EpiModel::response(void) {
 	setSchoolOpen(t,i);// schools open today
       t.nSchoolClosureTimer=0;
     }
+    if ( it == tractvec.begin()) {
+      if (isSchoolClosed(t,1))  cout << "Schools closed on day " << (nTimer/2) << endl;
+	  }
   }
 
   // 1. Count cumulative number of ascertained cases
@@ -2461,7 +2511,7 @@ void EpiModel::response(void) {
 	if (isSchoolClosed(t,1) &&                       // school is closed
 	    --t.nSchoolClosureTimer<=0 &&                // school closure is not in effect anymore
 	    nSchoolOpeningDays[t.fips_state-1]-1<=nTimer/2) { // school should be open
-	  cout << "School open on day " << nTimer/2 << ", time " << nTimer << endl;
+	  if (it == tractvec.begin()) cout << "School open on day " << nTimer/2 << ", time " << nTimer << endl;
 	  for (int i=0; i<9; i++)
 	    setSchoolOpen(t,i);// school is open again
 	}
@@ -2841,18 +2891,23 @@ void EpiModel::log(void) {
     out << int(nTimer/2) << "," << t.id;
     int nsym[TAG],      // current symptomatic prevalence
       ncsym[TAG];	// cumulative symptomatic attack rate
+    int nwithd[TAG] ;   // RGB number withdrawn.  (quarantine is separate)
     memset(nsym, 0, sizeof(int)*TAG);
     memset(ncsym, 0, sizeof(int)*TAG);
+    memset(nwithd, 0, sizeof(int)*TAG);
     for (unsigned int i=t.nFirstCommunity; i<t.nLastCommunity; i++) {
       for (int j=0; j<TAG; j++) {
 	nsym[j] += commvec[i].nsym[j];
 	ncsym[j] += commvec[i].nEverSymptomatic[j];
+	nwithd[j] += commvec[i].nWithdrawn[j];
       }
     }
     for (int j=0; j<TAG; j++)
       out << "," << nsym[j];
     for (int j=0; j<TAG; j++)
       out << "," << ncsym[j];
+    for (int j=0; j<TAG; j++)
+      out << "," << nwithd[j];
     out << endl;
   }
 

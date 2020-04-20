@@ -1,0 +1,47 @@
+# Based on:
+# https://www.nature.com/articles/s41591-020-0822-7.pdf
+# In- & Output Files
+individualfile 1
+label example_northeast
+datafile northeast
+summaryfilename northeast_summary
+logfile 1
+logfilename northeast_log
+tractfilename northeast_tracts
+# Simulation Settings
+runlength 182
+# Virus Parameters
+R0 3.0 # lock-down=[0.3,0.8], nothing=[2,3.5]
+# Preparedness Settings
+prestrategy none
+preexistingimmunitylevel 0.0
+# Reaction Parameters
+responsethreshhold 1.0   # switch off triggered response
+ascertainmentdelay 0     # withdraw immediately symptomatic.
+ascertainmentfraction 0.8  # fits with Diamond Princess incident
+reactivestrategy none
+responseday 30
+endresponseday 30
+schoolclosurepolicy all
+schoolclosuredays 30
+travel 0                # set this to 1 to allow travel. 
+isolation 0.7
+quarantine 0.7
+liberalleave 0.6
+# Population Setting
+essentialfraction 0.1
+pregnantfraction 0 0 0.02771 0.02069 0
+highriskfraction 0.0 0.001 0.12 0.212 0.212
+antiviralpolicy 
+# Vaccine Setting
+vaccineproduction 0
+vaccinedosesdaily 0
+antiviralpolicy none
+#AVEs 0.3
+#AVEp 0.6
+#AVEi 0.62
+# Seeding Infected People Settings
+seed 1
+seedinfected 10
+seedinfecteddaily 0
+seedairports 0
