@@ -1287,7 +1287,7 @@ void EpiModel::infect(Person& p) {
   // length of incubation period
   p.iday=-1;  // set to -1 so the person is not infectious until tomorrow
   p.ibits = 0;
-  double fSymptomaticProb=0.67;
+  double fSymptomaticProb=0.5;
   if (isVaccinated(p)) {
     if (needsBoost(p))
       fSymptomaticProb*=(1.0-VaccineData[whichVaccine(p)].VEp*defaultvacceff[p.vday]*fVaccineEfficacyByAge[p.age]);

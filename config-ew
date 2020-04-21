@@ -2,6 +2,7 @@
 # https://www.nature.com/articles/s41591-020-0822-7.pdf
 # In- & Output Files
 individualfile 1
+individualfilename ew_individual 
 label example_ew
 datafile ew
 summaryfilename ew_summary
@@ -12,6 +13,7 @@ tractfilename ew_tracts
 runlength 182
 # Virus Parameters
 R0 3.0 # lock-down=[0.3,0.8], nothing=[2,3.5]
+defaultVESbyage 0.0 1.0 1.7 2.2 4.0
 # Preparedness Settings
 prestrategy none
 preexistingimmunitylevel 0.0
