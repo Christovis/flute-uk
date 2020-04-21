@@ -344,6 +344,8 @@ struct Community {
   int nEverInfected[TAG];// number of residents ever infected
   int nEverSymptomatic[TAG]; // number of residents ever symptomatic
   int nEverAscertained[TAG]; // number of residents ever ascertained
+  double sumpcontact[TAG];    // RGB added to calculate average infection rate
+  int sumcontact[TAG];        // to take average at end.
   double cpcm[5];        // community-specific community contact rates
   double cpnh[5];        // community-specific neighborhood contact rates
   double daycpcm[5];     // community-specific daytime community contact rates

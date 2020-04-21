@@ -38,16 +38,18 @@ extern const int nQuarantineLength; // length of quarantine in days
 extern const int nAntiviralCourseSize; // number of pills in one antiviral course (1 tablet/day for prophylaxis and 2 tablets/day for treatment)
 extern const double fStopAntiviralTwoPills; // probability that individuals taking antivirals stop after exactly two pills
 
+// RGB number of days of infectiousness.
+#define INCUBATIONNDAY	16
 // cdf of duration for incubation period in days
-extern const double incubationcdf[3];
-//extern const unsigned int incubationcdf32[3];
+extern const double incubationcdf[INCUBATIONNDAY];
 
 // viral load trajectories
 // number of subjects
-#define VLOADNSUB	6
+#define VLOADNSUB	1  // RGB only one trajectory for covid.
 // number of days with detectable viral load
-#define VLOADNDAY	6
+#define VLOADNDAY	18
 extern const double basevload[VLOADNSUB][VLOADNDAY];
+
 
 // vaccine efficacy over time
 // 28 days for VE buildup

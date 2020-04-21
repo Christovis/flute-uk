@@ -948,6 +948,8 @@ void EpiModel::create_families(Community& comm, int nTargetSize) {
   memset(comm.nEverSymptomatic, 0, TAG*sizeof(int));
   memset(comm.nEverAscertained, 0, TAG*sizeof(int));
   memset(comm.nNumAge, 0, TAG*sizeof(int));
+  memset(comm.sumpcontact, 0, TAG*sizeof(double));  // RGB added to compute the average infection probablility. 
+  memset(comm.sumcontact, 0, TAG*sizeof(int));
   comm.nFirstPerson=nNumPerson;
   playgroup[0] = 9;
   playgroup[1] = 10;
@@ -1300,12 +1302,11 @@ void EpiModel::infect(Person& p) {
   if (rn<fSymptomaticProb) {  // will be symptomatic
     setWillBeSymptomatic(p);
     double rn2 = get_rand_double;
-    if (rn2 < incubationcdf[0])
-      setIncubationDays(p,1);
-    else if (rn2 < incubationcdf[1])
-      setIncubationDays(p,2);
-    else
-      setIncubationDays(p,3);
+    for(int i=0; i<INCUBATIONNDAY; i++) {
+      if (rn2 < incubationcdf[i]) {
+	setIncubationDays(p,i);
+      }
+    }
     assert(getIncubationDays(p)>0);
     if (rn<fSymptomaticProb*fSymptomaticAscertainment) { // will be ascertained
       setWillBeAscertained(p);
@@ -1364,6 +1365,9 @@ void EpiModel::infect(Person& p) {
 bool EpiModel::infect(Person& p, const Person& source, double baseprob, int sourcetype) {
   assert(source.iday>=0);
   assert(isSusceptible(p));
+  //RGB accumulate the probablility and the weighting factor
+  commvec[p.nHomeComm].sumpcontact[p.age] += baseprob*p.prs*source.pri;
+  commvec[p.nHomeComm].sumcontact[p.age] += 1.0;
   if (get_rand_double<baseprob*p.prs*source.pri) {
     p.sourceid = source.id;
     p.sourcetype = sourcetype;
@@ -2892,14 +2896,20 @@ void EpiModel::log(void) {
     int nsym[TAG],      // current symptomatic prevalence
       ncsym[TAG];	// cumulative symptomatic attack rate
     int nwithd[TAG] ;   // RGB number withdrawn.  (quarantine is separate)
+    double sumpc[TAG] ;  // summ of interaction probability
+    int sumc[TAG] ;      // sum of number of interactions.
     memset(nsym, 0, sizeof(int)*TAG);
     memset(ncsym, 0, sizeof(int)*TAG);
     memset(nwithd, 0, sizeof(int)*TAG);
+    memset(sumpc, 0, sizeof(double)*TAG);
+    memset(sumc, 0, sizeof(int)*TAG);
     for (unsigned int i=t.nFirstCommunity; i<t.nLastCommunity; i++) {
       for (int j=0; j<TAG; j++) {
 	nsym[j] += commvec[i].nsym[j];
 	ncsym[j] += commvec[i].nEverSymptomatic[j];
 	nwithd[j] += commvec[i].nWithdrawn[j];
+	sumpc[j] += commvec[i].sumpcontact[j];
+	sumc[j] += commvec[i].sumcontact[j];
       }
     }
     for (int j=0; j<TAG; j++)
@@ -2908,6 +2918,10 @@ void EpiModel::log(void) {
       out << "," << ncsym[j];
     for (int j=0; j<TAG; j++)
       out << "," << nwithd[j];
+    for (int j=0; j<TAG; j++)
+      out << "," << sumpc[j]/sumc[j];    //RGB output the average infection probablity per infected->sourrce pairs
+    for (int j=0; j<TAG; j++)
+      out << "," << sumc[j];    //RGB normalising factor for above (to avverage over tracts/age groups etc). This is not the same as number infected in the tract because of work/travel etc.
     out << endl;
   }
 
