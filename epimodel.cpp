@@ -311,7 +311,10 @@ EpiModel::EpiModel(EpiModelParameters &params) {
     if ((*logfile) && (*logfile).good()) {
       ostream &out = *logfile;
       out << "time,TractID,sym0-4,sym5-18,sym19-29,sym30-64,sym65+,cumsym0-4,cumsym5-18,cumsym19-29,cumsym30-64,cumsym65+,"
-	  << "Withd0-4,Withd5-18,Withd19-29,Withd30-64,Withd65+" << endl;
+	  << "Withd0-4,Withd5-18,Withd19-29,Withd30-64,Withd65+,"
+	  << "beta0-4,beta5-18,beta19-29,beta30-64,beta65+,"
+	  << "betacount0-4,betacount5-18,betacount19-29,betacount30-64,betacount65+,"
+	  << endl;
     }
     individualsfile = params.getIndividualsFile();
     sumfile = params.getSummaryFile();
