@@ -1627,8 +1627,9 @@ void EpiModel::day(void) {
       p.prs *= (1.0-AVEs);
       p.pri *= (1.0-AVEi);
     }
+    double symptomaticVLoadFactor = 2.0;
     if (isSymptomatic(p))
-      p.pri *= 2.0;  // symptomatic people are 2 times as infectious
+      p.pri *= symptomaticVLoadFactor;  // symptomatic people are 2 times as infectious. RGB for Covid it makes no difference.
     assert(p.pri<=1.0);
     assert(p.prs<=1.0);
   }
