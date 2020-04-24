@@ -39,7 +39,7 @@ extern const int nAntiviralCourseSize; // number of pills in one antiviral cours
 extern const double fStopAntiviralTwoPills; // probability that individuals taking antivirals stop after exactly two pills
 
 // RGB number of days of infectiousness.
-#define INCUBATIONNDAY	16
+#define INCUBATIONNDAY	10
 // cdf of duration for incubation period in days
 extern const double incubationcdf[INCUBATIONNDAY];
 
@@ -47,7 +47,7 @@ extern const double incubationcdf[INCUBATIONNDAY];
 // number of subjects
 #define VLOADNSUB	1  // RGB only one trajectory for covid.
 // number of days with detectable viral load
-#define VLOADNDAY	18
+#define VLOADNDAY	14
 extern const double basevload[VLOADNSUB][VLOADNDAY];
 
 
