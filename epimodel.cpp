@@ -314,6 +314,8 @@ EpiModel::EpiModel(EpiModelParameters &params) {
 	  << "Withd0-4,Withd5-18,Withd19-29,Withd30-64,Withd65+,"
 	  << "beta0-4,beta5-18,beta19-29,beta30-64,beta65+,"
 	  << "betacount0-4,betacount5-18,betacount19-29,betacount30-64,betacount65+,"
+	  << "ninf0-4,ninf5-18,ninf19-29,ninf30-64,ninf65+,"
+	  << "nsus0-4,nsus5-18,nsus19-29,nsus30-64,nsus65+,"
 	  << endl;
     }
     individualsfile = params.getIndividualsFile();
@@ -947,6 +949,7 @@ void EpiModel::create_families(Community& comm, int nTargetSize) {
   memset(comm.ninf, 0, TAG*sizeof(int));
   memset(comm.nsym, 0, TAG*sizeof(int));
   memset(comm.nWithdrawn, 0, TAG*sizeof(int));
+  memset(comm.nSusceptible, 0, TAG*sizeof(int));
   memset(comm.nEverInfected, 0, TAG*sizeof(int));
   memset(comm.nEverSymptomatic, 0, TAG*sizeof(int));
   memset(comm.nEverAscertained, 0, TAG*sizeof(int));
@@ -1370,7 +1373,7 @@ bool EpiModel::infect(Person& p, const Person& source, double baseprob, int sour
   assert(isSusceptible(p));
   //RGB accumulate the probablility and the weighting factor
   commvec[p.nHomeComm].sumpcontact[p.age] += baseprob*p.prs*source.pri;
-  commvec[p.nHomeComm].sumcontact[p.age] += 1.0;
+  commvec[p.nHomeComm].sumcontact[p.age]++;
   if (get_rand_double<baseprob*p.prs*source.pri) {
     p.sourceid = source.id;
     p.sourcetype = sourcetype;
@@ -1927,6 +1930,7 @@ void EpiModel::night(void) {
     // RGB loop over all the people implementing lockdown.
     for (int j=0; j<TAG; j++) {
       comm.nWithdrawn[j] = 0 ;
+      comm.nSusceptible[j] = 0 ;
     }
     for (unsigned int pid=comm.nFirstPerson;
 	   pid<comm.nLastPerson;
@@ -1951,6 +1955,10 @@ void EpiModel::night(void) {
       // RGB count the number of people that are withdrawn on this night.
       if (isWithdrawn(p)) {                 
 	++comm.nWithdrawn[p.age];
+      }
+      // RGB count the number of people that are susceptible on this night.
+      if (isSusceptible(p)) {                 
+	++comm.nSusceptible[p.age];
       }
     }
        
@@ -2900,13 +2908,17 @@ void EpiModel::log(void) {
     int nsym[TAG],      // current symptomatic prevalence
       ncsym[TAG];	// cumulative symptomatic attack rate
     int nwithd[TAG] ;   // RGB number withdrawn.  (quarantine is separate)
-    double sumpc[TAG] ;  // summ of interaction probability
+    double sumpc[TAG] ;  // summ of interaction probability (over day+night)
     int sumc[TAG] ;      // sum of number of interactions.
+    int suminf[TAG] ;    // number of infected people
+    int sumsus[TAG] ;    // number of susceptible people
     memset(nsym, 0, sizeof(int)*TAG);
     memset(ncsym, 0, sizeof(int)*TAG);
     memset(nwithd, 0, sizeof(int)*TAG);
     memset(sumpc, 0, sizeof(double)*TAG);
     memset(sumc, 0, sizeof(int)*TAG);
+    memset(suminf, 0, sizeof(int)*TAG);
+    memset(sumsus, 0, sizeof(int)*TAG);
     for (unsigned int i=t.nFirstCommunity; i<t.nLastCommunity; i++) {
       for (int j=0; j<TAG; j++) {
 	nsym[j] += commvec[i].nsym[j];
@@ -2914,6 +2926,10 @@ void EpiModel::log(void) {
 	nwithd[j] += commvec[i].nWithdrawn[j];
 	sumpc[j] += commvec[i].sumpcontact[j];
 	sumc[j] += commvec[i].sumcontact[j];
+	commvec[i].sumpcontact[j] = 0.0 ;  //RGB zero the contact counter. We will accumulate contacts over next day+night
+        commvec[i].sumcontact[j] = 0 ;
+	suminf[j] += commvec[i].ninf[j];
+	sumsus[j] += commvec[i].nSusceptible[j];
       }
     }
     for (int j=0; j<TAG; j++)
@@ -2923,9 +2939,13 @@ void EpiModel::log(void) {
     for (int j=0; j<TAG; j++)
       out << "," << nwithd[j];
     for (int j=0; j<TAG; j++)
-      out << "," << sumpc[j]/sumc[j];    //RGB output the average infection probablity per infected->sourrce pairs
+      out << "," << ( sumc[j] > 0 ? sumpc[j]/sumc[j] : 0.0 );    //RGB output the average infection probablity per infected->sourrce pairs
     for (int j=0; j<TAG; j++)
       out << "," << sumc[j];    //RGB normalising factor for above (to avverage over tracts/age groups etc). This is not the same as number infected in the tract because of work/travel etc.
+    for (int j=0; j<TAG; j++)
+      out << "," << suminf[j];    // total number of infected people
+    for (int j=0; j<TAG; j++)
+      out << "," << sumsus[j];    // total number of susceptible people
     out << endl;
   }
 

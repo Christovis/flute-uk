@@ -341,6 +341,7 @@ struct Community {
   int ninf[TAG];	 // number of residents currently infected
   int nsym[TAG];	 // number of residents currently symptomatic
   int nWithdrawn[TAG];   // number of residents withdrawn
+  int nSusceptible[TAG];   // number of residents withdrawn
   int nEverInfected[TAG];// number of residents ever infected
   int nEverSymptomatic[TAG]; // number of residents ever symptomatic
   int nEverAscertained[TAG]; // number of residents ever ascertained

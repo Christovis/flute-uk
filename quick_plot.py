@@ -8,17 +8,31 @@ import geopandas as GPD
 import numpy.random as R
 
 # if flute_dir is a list, make 4 plots from each of the directories on one page.
-flute_dir= ["northeast-noaction/test_r0_1p0/","northeast-noaction/test_r0_1p5/","northeast-noaction/test_r0_2p0/","northeast-noaction/test_r0_3p0/"]
 #flute_dir="./"
-#flute_dir= "northeast-noaction/test_r0_1p0/"
+
+region = "northeast"
+if region == "northeast":
+    #fflute_dir= ["northeast-noaction/test_r0_1p0/","northeast-noaction/test_r0_1p5/","northeast-noaction/test_r0_2p0/","northeast-noaction/test_r0_3p0/"]
+    flute_dir= "northeast-noaction/test_r0_1p0/"
+    tract_file = flute_dir + "northeast_tracts"
+    log_file = flute_dir + "northeast_log"
+else :
+    flute_dir= "ew-noaction/test_r0_1p5/"
+    tract_file = flute_dir + "ew_tracts"
+    log_file = flute_dir + "ew_log"
+
 home_dir="./"
 
 # total population ... need to find a neat way to read this from the summary file. Hardwire for NothEast for now.
 total_pop = N.array([158627,521126,343960,1279055,355487])
 
+# fraction of people that show symptoms. Needs to be read from input file!
+# symptomatic_fraction = 0.58
+infection_length = 
+
 
 flute_id = PD.read_csv(
-    home_dir + "northeast_tracts",
+    tract_file,
     delimiter=',',
     delim_whitespace=False,
 )
@@ -50,12 +64,15 @@ print( "-------------------------" )
 def read_flute_data(flute_dir):
     """read in the flute log file and return it"""
     log = PD.read_csv(
-        flute_dir + "northeast_log",
+        log_file,
         delimiter=',',
         delim_whitespace=False,
         #dtype={'':int,'':str,'':int,'':int,'':int,'':int,'':int,'':int,'':int,'':int,'':int,'':int},
     )
-    log["sym0-inf"] = log[["sym0-4","sym5-18","sym19-29","sym30-64","sym65+"]].sum(axis=1)
+    log["sym0-Inf"] = log[["sym0-4","sym5-18","sym19-29","sym30-64","sym65+"]].sum(axis=1)
+    log["cumsym0-Inf"] = log[["cumsym0-4","cumsym5-18","cumsym19-29","cumsym30-64","cumsym65+"]].sum(axis=1)
+    log["ninf0-Inf"] = log[["ninf0-4","ninf5-18","ninf19-29","ninf30-64","ninf65+"]].sum(axis=1)
+    log["nsus0-Inf"] = log[["nsus0-4","nsus5-18","nsus19-29","nsus30-64","nsus65+"]].sum(axis=1)
 
     for flute_key in flute_id["TractID"].values:
         trans_key = flute_id[flute_id["TractID"] == flute_key]["FIPStract"].values[0]
@@ -70,11 +87,11 @@ def read_flute_data(flute_dir):
     log["betasum65+"] = log["beta65+"]*log["betacount65+"]
     log["betasum0-Inf"] = log[["betasum0-4","betasum5-18","betasum19-29","betasum30-64","betasum65+"]].sum(axis=1)
     log["betacount0-Inf"] = log[["betacount0-4","betacount5-18","betacount19-29","betacount30-64","betacount65+"]].sum(axis=1)
-
+   
     time_list= N.unique(log["time"].values)
     totals = log.groupby(["time"]).sum()
-    effective_beta = totals["betasum0-Inf"].values/totals["betacount0-Inf"].values
-    print( flute_dir, " ...effective beta of overall model: ", effective_beta[-1] )  # quote cumulative value at end of run.
+    effective_beta = N.sum(totals["betasum0-Inf"].values)/N.sum((totals["ninf0-Inf"].values*totals["nsus0-Inf"].values))
+    print( flute_dir, " ...effective beta of overall model: ", effective_beta )  # weighted sum of values each day+night
                
     return log
 
@@ -107,6 +124,8 @@ def plot_by_age_and_tract(log, npick=10):
             log["sym65+"].values[ok],
         )
         P.xlim([0, 180])
+    ax = P.axes()
+    ax.ticklabel_format(style='sci')
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'sym', fontsize=16)
     P.title(r"North East")
@@ -123,9 +142,11 @@ def plot_by_tract(log, npick=10):
         ok = (log["TractID"] == tract)
         P.plot(
             log["time"].values[ok],
-            log["sym0-inf"].values[ok],
+            log["sym0-Inf"].values[ok],
             label=tract
         )
+    ax = P.axes()
+    ax.ticklabel_format(style='sci', scilimits=(0,0))
     P.xlim([0, 180])
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'sym', fontsize=16)
@@ -171,39 +192,41 @@ def plot_cumulative_by_age(log):
     P.legend(loc='best')
 
 def plot_beta_by_age(log):
-    """plot beta by tract and age"""
+    """plot beta by tract and age. NB although number is given as beta, it really should be multiplied by total population."""
 
     time_list= N.unique(log["time"].values)
     totals = log.groupby(["time"]).sum()
 
-    P.plot(
+    ax = P.axes()
+    ax.ticklabel_format(style='sci', scilimits=(0,0))
+    ax.plot(
         time_list,
-        totals["betasum0-4"].values/totals["betacount0-4"].values,
+        totals["betasum0-4"].values/(totals["ninf0-Inf"].values*totals["nsus0-4"].values),
         label="0-4"
         )    
-    P.plot(
+    ax.plot(
         time_list,
-        totals["betasum5-18"].values/totals["betacount5-18"].values,
+        totals["betasum5-18"].values/(totals["ninf0-Inf"].values*totals["nsus5-18"].values),
         label="5-18"
         )    
-    P.plot(
+    ax.plot(
         time_list,
-        totals["betasum19-29"].values/totals["betacount19-29"].values,
+        totals["betasum19-29"].values/(totals["ninf0-Inf"].values*totals["nsus19-29"].values),
         label="19-29"
         )    
-    P.plot(
+    ax.plot(
         time_list,
-        totals["betasum30-64"].values/totals["betacount30-64"].values,
+        totals["betasum30-64"].values/(totals["ninf0-Inf"].values*totals["nsus30-64"].values),
         label="30-64"
         )    
-    P.plot(
+    ax.plot(
         time_list,
-        totals["betasum65+"].values/totals["betacount65+"].values,
+        totals["betasum65+"].values/(totals["ninf0-Inf"].values*totals["nsus65+"].values),
         label="65+"
         )   
-    P.plot(
+    ax.plot(
         time_list,
-        totals["betasum0-Inf"].values/totals["betacount0-Inf"].values,
+        totals["betasum0-Inf"].values/(totals["ninf0-Inf"].values*totals["nsus0-Inf"].values),
         label="all"
         )   
     
@@ -215,13 +238,14 @@ def plot_beta_by_age(log):
     P.legend(loc='best')
 
 
-
 def plot_withdrawn_by_age(log):
     """plot number of withdrawn individuals by tract and age"""
     
     time_list= N.unique(log["time"].values)
     totals = log.groupby(["time"]).sum()
 
+    ax = P.axes()
+    ax.ticklabel_format(style='sci', scilimits=(0,0))
     P.plot(
             time_list,
             totals["Withd0-4"].values/total_pop[0],
@@ -254,13 +278,14 @@ def plot_withdrawn_by_age(log):
     P.title(r"North East")
     P.legend(loc='best')
 
-
 def plot_by_age(log):
-    """plot probability of infetion factor beta as a function of age"""
+    """plot number of symptomatic people as function of age"""
 
     time_list= N.unique(log["time"].values)
     totals = log.groupby(["time"]).sum()
 
+    ax = P.axes()
+    ax.ticklabel_format(style='sci', scilimits=(0,0))
     P.plot(
             time_list,
             totals["sym0-4"].values,
@@ -286,13 +311,89 @@ def plot_by_age(log):
             totals["sym65+"].values,
             label="65+"
         )    
-
     P.xlim([0, 180])
     P.xlabel(r'time  [days]', fontsize=16)
-    P.ylabel(r'symptomatic cases', fontsize=16)
+    P.ylabel(r'number symptomatic individuals', fontsize=16)
     P.title(r"North East")
     P.legend(loc='best')
 
+    
+def plot_susceptible_by_age(log):
+    """plot probability of infetion factor beta as a function of age"""
+
+    time_list= N.unique(log["time"].values)
+    totals = log.groupby(["time"]).sum()
+
+    ax = P.axes()
+    ax.ticklabel_format(style='sci', scilimits=(0,0))
+    P.plot(
+            time_list,
+            totals["nsus0-4"].values,
+            label="0-4"
+        )    
+    P.plot(
+            time_list,
+            totals["nsus5-18"].values,
+            label="5-18"
+        )    
+    P.plot(
+            time_list,
+            totals["nsus19-29"].values,
+            label="19-29"
+        )    
+    P.plot(
+            time_list,
+            totals["nsus30-64"].values,
+            label="30-64"
+        )    
+    P.plot(
+            time_list,
+            totals["nsus65+"].values,
+            label="65+"
+        )    
+
+    P.xlim([0, 180])
+    P.xlabel(r'time  [days]', fontsize=16)
+    P.ylabel(r'susceptible people', fontsize=16)
+    P.title(r"North East")
+    P.legend(loc='best')
+
+    
+def plot_infected_by_age(log):
+    """plot probability of infetion factor beta as a function of age"""
+
+    time_list= N.unique(log["time"].values)
+    totals = log.groupby(["time"]).sum()
+
+    ax = P.axes()
+    ax.ticklabel_format(style='sci', scilimits=(0,0))
+    ax.plot(
+            time_list,
+            totals["ninf0-4"].values,
+            label="0-4"
+        )    
+    ax.plot(
+            time_list,
+            totals["ninf5-18"].values,
+            label="5-18"
+        )    
+    ax.plot(
+            time_list,
+            totals["ninf19-29"].values,
+            label="19-29"
+        )    
+    ax.plot(
+            time_list,
+            totals["ninf30-64"].values,
+            label="30-64"
+        )    
+    ax.plot(
+            time_list,
+            totals["ninf65+"].values,
+            label="65+"
+        )    
+    P.xlabel(r'time  [days]', fontsize=16)
+    P.ylabel(r'infected people', fontsize=16)
 
     
 def make_plots(fdir):
@@ -313,6 +414,14 @@ def make_plots(fdir):
     P.figure()
     plot_beta_by_age(log)
     P.savefig( flute_dir+"plot_beta_by_age.png" )
+
+    P.figure()
+    plot_susceptible_by_age(log)
+    P.savefig( flute_dir+"plot_susceptible_by_age.png" )
+
+    P.figure()
+    plot_infected_by_age(log)
+    P.savefig( flute_dir+"plot_infected_by_age.png" )
 
     
 
