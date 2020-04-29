@@ -60,12 +60,15 @@ flutelog_df = flutelog_df.drop(
 
 # load shape file of England and Wales
 shape_file = 'Middle_Layer_Super_Output_Areas_December_2011_Full_Clipped_Boundaries_in_England_and_Wales'
-ew_shape = gpd.read_file('./%s/%s.shp' % (shape_file, shape_file))
+ew_shape = gpd.read_file('%s/%s.shp' % (shape_file, shape_file))
 ew_shape = ew_shape.set_index('msoa11cd')
 
+shape_file = 'Countries_December_2019_GB_BFC'
+uk_shape = gpd.read_file('%s/%s.shp' % (shape_file, shape_file))
 
 # crea maps for each day in simulation
-for day in flutelog_df["time"].values:
+for day in np.unique(flutelog_df["time"].values)[50:]:
+    print("Day", day)
     flute_day = flutelog_df[flutelog_df["time"] == day].set_index('TractID')
 
     ew_day = ew_shape.merge(
@@ -76,14 +79,28 @@ for day in flutelog_df["time"].values:
 
     fig, ax = plt.subplots(figsize=(12, 6),)
 
+    norm = colors.Normalize(
+        vmin=ew_day["cumsym0-inf"].values.min(),
+        vmax=ew_day["cumsym0-inf"].values.max(),
+    )
     cbar = plt.cm.ScalarMappable(norm=norm, cmap='Blues')
 
     ew_day.plot(
         column="cumsym0-inf",
         ax=ax,
         cmap=cm.Blues,
-        #alpha=0.9,
+        categorical=False,
+    )
+    uk_shape.plot(
+        color=None,
+        ax=ax,
+        facecolor="none",
+        alpha=1.0,
+        edgecolor='black',
+        linewidth=0.5,
         categorical=False,
     )
     ax.axis('off')
     plt.savefig("ew_day%d_map.png"%day, dpi=150)
+    plt.clf()
+    plt.close('all')
