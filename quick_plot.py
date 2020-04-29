@@ -10,31 +10,36 @@ import numpy.random as R
 # if flute_dir is a list, make 4 plots from each of the directories on one page.
 #flute_dir="./"
 
-region = "northeast"
-#region="ew"
+#region = "northeast"
+region="ew"
 if region == "northeast":
     #flute_dir= ["northeast-noaction/test_r0_1p0/","northeast-noaction/test_r0_1p5/","northeast-noaction/test_r0_2p0/","northeast-noaction/test_r0_3p0/"]
     #flute_dir= "northeast-noaction/test_r0_1p5/"
     flute_dir= "northeast-lockdown/"
-    tract_file = "northeast-noaction/test_r0_1p5/" + "northeast_tracts"
+    tract_file = flute_dir + "northeast_tracts"
     log_file = "northeast_log"
     nomis_dir = "output_analysis/NorthEast/"
     old_file_type=False
+    plot_title = "NorthEast"
+    # total population ... need to find a neat way to read this from the summary file. Hardwire for NothEast for now.
+    total_pop = N.array([158627,521126,343960,1279055,355487])
 else :
-    flute_dir= "ew-noaction/test_r0_2p0/"
-    tract_file = "ew-noaction/test_r0_2p0/" + "ew_tracts"
+    flute_dir= "ew-noaction/test_r0_1p5/"
+    tract_file = flute_dir + "ew_tracts"
     log_file = "ew_log"
     nomis_dir = "output_analysis/EnglandWales/"
     old_file_type=True
+    plot_title = "Englad and Wales"
+    total_pop = N.array([3530963,11618091,7642752,28445028,7886388])
 
+    
 home_dir="./"
 
-# total population ... need to find a neat way to read this from the summary file. Hardwire for NothEast for now.
-total_pop = N.array([158627,521126,343960,1279055,355487])
+
 
 # fraction of people that show symptoms. Needs to be read from input file!
 # symptomatic_fraction = 0.58
-n_infected_days = 14  # the number of days in the Vload array. Use to calculate R0
+n_infected_days = 14  # the number of days in the Vload array. Used to calculate R0
 
 
 
@@ -64,6 +69,7 @@ MSOA11CD_df = PD.read_csv(
 )
 MSOA11CD_df = MSOA11CD_df.rename(columns={"Unnamed: 0": "nomis id"})
 
+
 print( "-------------------------" )
 
 
@@ -83,7 +89,10 @@ def read_flute_data(flute_dir):
 
     for flute_key in flute_id["TractID"].values:
         trans_key = flute_id[flute_id["TractID"] == flute_key]["FIPStract"].values[0]
-        nomis_key = MSOA11CD_df[MSOA11CD_df["flute id"] == trans_key]["nomis id"].values[0]
+        ok = (MSOA11CD_df["flute id"] == trans_key )   # check .. does this need -1 ??
+        if not N.any(ok) : 
+            print( "no key match ", flute_key)
+        nomis_key = MSOA11CD_df[ok]["nomis id"].values[0]
         log["TractID"] = log["TractID"].replace(flute_key, nomis_key)
 
     # these are used to caculate the effective beta for the model. This can be use to compare to SIR model.
@@ -97,10 +106,13 @@ def read_flute_data(flute_dir):
    
     time_list= N.unique(log["time"].values)
     totals = log.groupby(["time"]).sum()
-    effective_beta = N.sum(totals["betasum0-Inf"].values)/N.sum((totals["ninf0-Inf"].values*totals["nsus0-Inf"].values))
-    print( flute_dir, " ...effective beta of overall model: ", effective_beta )  # weighted sum of values each day+night
+    if not old_file_type :
+        effective_beta = N.sum(totals["betasum0-Inf"].values)/N.sum((totals["ninf0-Inf"].values*totals["nsus0-Inf"].values))
+        print( flute_dir, " ...effective beta of overall model: ", effective_beta )  # weighted sum of values each day+night
                
+    print( "finished reading log file")
     return log
+
 
 def plot_by_age_and_tract(log, npick=10):
     """plot number of symptomatic cases by tract and age"""
@@ -135,9 +147,10 @@ def plot_by_age_and_tract(log, npick=10):
     ax.ticklabel_format(style='sci')
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'sym', fontsize=16)
-    P.title(r"North East")
+    P.title(plot_title)
     #P.legend(loc='best')
 
+    
 def plot_by_tract(log, npick=10):
     """plot number of symptomatic cases by tract"""
 
@@ -157,8 +170,9 @@ def plot_by_tract(log, npick=10):
     P.xlim([0, 180])
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'sym', fontsize=16)
-    P.title(r"North East")
+    P.title(plot_title)
     P.legend(loc='best')
+
     
 def plot_cumulative_by_age(log):
     """plot cumulative number of symptomatic cases by age"""
@@ -195,9 +209,10 @@ def plot_cumulative_by_age(log):
     P.xlim([0, 180])
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'cumulative symptomatic fraction', fontsize=16)
-    P.title(r"North East")
+    P.title(plot_title)
     P.legend(loc='best')
 
+    
 def plot_beta_by_age(log):
     """plot beta by tract and age. NB although number is given as beta, it really should be multiplied by total population."""
 
@@ -241,7 +256,7 @@ def plot_beta_by_age(log):
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'beta', fontsize=16)
     P.ylim(bottom=0.)
-    P.title(r"North East")
+    P.title(plot_title)
     P.legend(loc='best')
 
 def plot_Rt_by_age(log):
@@ -287,7 +302,7 @@ def plot_Rt_by_age(log):
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'Rt', fontsize=16)
     P.ylim(bottom=0.)
-    P.title(r"North East")
+    P.title(plot_title)
     P.legend(loc='best')
 
 def plot_withdrawn_by_age(log):
@@ -327,7 +342,7 @@ def plot_withdrawn_by_age(log):
     P.xlim([0, 180])
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'fraction withdrawn individuals', fontsize=16)
-    P.title(r"North East")
+    P.title(plot_title)
     P.legend(loc='best')
 
 def plot_by_age(log):
@@ -366,7 +381,7 @@ def plot_by_age(log):
     P.xlim([0, 180])
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'number symptomatic individuals', fontsize=16)
-    P.title(r"North East")
+    P.title(plot_title)
     P.legend(loc='best')
 
     
@@ -407,7 +422,7 @@ def plot_susceptible_by_age(log):
     P.xlim([0, 180])
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'susceptible people', fontsize=16)
-    P.title(r"North East")
+    P.title(plot_title)
     P.legend(loc='best')
 
     
@@ -472,13 +487,13 @@ def make_plots(fdir):
         plot_Rt_by_age(log)
         P.savefig( flute_dir+"plot_Rt_by_age.png" )
 
-    P.figure()
-    plot_susceptible_by_age(log)
-    P.savefig( flute_dir+"plot_susceptible_by_age.png" )
+        P.figure()
+        plot_susceptible_by_age(log)
+        P.savefig( flute_dir+"plot_susceptible_by_age.png" )
 
-    P.figure()
-    plot_infected_by_age(log)
-    P.savefig( flute_dir+"plot_infected_by_age.png" )
+        P.figure()
+        plot_infected_by_age(log)
+        P.savefig( flute_dir+"plot_infected_by_age.png" )
 
     
 
