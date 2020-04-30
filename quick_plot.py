@@ -28,7 +28,7 @@ else :
     tract_file = flute_dir + "ew_tracts"
     log_file = "ew_log"
     nomis_dir = "output_analysis/EnglandWales/"
-    old_file_type=True
+    old_file_type=False
     plot_title = "Englad and Wales"
     total_pop = N.array([3530963,11618091,7642752,28445028,7886388])
 
@@ -88,8 +88,8 @@ def read_flute_data(flute_dir):
         log["nsus0-Inf"] = log[["nsus0-4","nsus5-18","nsus19-29","nsus30-64","nsus65+"]].sum(axis=1)
 
     for flute_key in flute_id["TractID"].values:
-        trans_key = flute_id[flute_id["TractID"] == flute_key]["FIPStract"].values[0]
-        ok = (MSOA11CD_df["flute id"] == trans_key )   # check .. does this need -1 ??
+        trans_key = flute_id[flute_id["TractID"] == flute_key]["FIPStract"].values[0] -1   # counting issue : this needs -1 
+        ok = (MSOA11CD_df["flute id"] == trans_key )   
         if not N.any(ok) : 
             print( "no key match ", flute_key)
         nomis_key = MSOA11CD_df[ok]["nomis id"].values[0]
