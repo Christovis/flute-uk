@@ -6,31 +6,34 @@ import pylab as P
 import pandas as PD
 import geopandas as GPD
 import numpy.random as R
+import plot_hospital_data as PHD
 
 # if flute_dir is a list, make 4 plots from each of the directories on one page.
 #flute_dir="./"
 
-#region = "northeast"
-region="ew"
+region = "northeast"
+#region="ew"
 if region == "northeast":
     #flute_dir= ["northeast-noaction/test_r0_1p0/","northeast-noaction/test_r0_1p5/","northeast-noaction/test_r0_2p0/","northeast-noaction/test_r0_3p0/"]
-    #flute_dir= "northeast-noaction/test_r0_1p5/"
-    flute_dir= "northeast-lockdown/"
+    flute_dir= "northeast-noaction/test_r0_3p0/"
+    #flute_dir= "northeast-noaction/"
     tract_file = flute_dir + "northeast_tracts"
     log_file = "northeast_log"
     nomis_dir = "output_analysis/NorthEast/"
-    old_file_type=False
+    old_file_type=True
     plot_title = "NorthEast"
     # total population ... need to find a neat way to read this from the summary file. Hardwire for NothEast for now.
     total_pop = N.array([158627,521126,343960,1279055,355487])
+    offset = 0
 else :
-    flute_dir= "ew-noaction/test_r0_1p5/"
+    flute_dir= "ew-lockdown-seedLondon/test_r0_3p0/"
     tract_file = flute_dir + "ew_tracts"
     log_file = "ew_log"
     nomis_dir = "output_analysis/EnglandWales/"
     old_file_type=False
     plot_title = "Englad and Wales"
     total_pop = N.array([3530963,11618091,7642752,28445028,7886388])
+    offset = 1   # corrects for counting error in the translation tables
 
     
 home_dir="./"
@@ -88,7 +91,7 @@ def read_flute_data(flute_dir):
         log["nsus0-Inf"] = log[["nsus0-4","nsus5-18","nsus19-29","nsus30-64","nsus65+"]].sum(axis=1)
 
     for flute_key in flute_id["TractID"].values:
-        trans_key = flute_id[flute_id["TractID"] == flute_key]["FIPStract"].values[0] -1   # counting issue : this needs -1 
+        trans_key = flute_id[flute_id["TractID"] == flute_key]["FIPStract"].values[0] - offset  # counting issue : this needs -1 
         ok = (MSOA11CD_df["flute id"] == trans_key )   
         if not N.any(ok) : 
             print( "no key match ", flute_key)
@@ -174,7 +177,7 @@ def plot_by_tract(log, npick=10):
     P.legend(loc='best')
 
     
-def plot_cumulative_by_age(log):
+def plot_cumulative_by_age(log, logplot=False):
     """plot cumulative number of symptomatic cases by age"""
 
     time_list= N.unique(log["time"].values)
@@ -207,6 +210,12 @@ def plot_cumulative_by_age(log):
         )    
 
     P.xlim([0, 180])
+    if logplot:
+        P.yscale('log')
+        P.ylim(bottom=10./N.sum(total_pop), top =1.2)
+        day = N.arange( 60 )
+        P.plot( day,  2**(day/2.) / N.sum(total_pop), 'k:' )     # add a line showing 2 day doublinmg time for guidance.
+        PHD.plot_hosital_data()
     P.xlabel(r'time  [days]', fontsize=16)
     P.ylabel(r'cumulative symptomatic fraction', fontsize=16)
     P.title(plot_title)
@@ -473,6 +482,10 @@ def make_plots(fdir):
     P.figure()
     plot_cumulative_by_age(log)
     P.savefig( flute_dir+"plot_cumulative_by_age.png" )
+
+    P.figure()
+    plot_cumulative_by_age(log, logplot=True)
+    P.savefig( flute_dir+"plot_logcumulative_by_age.png" )
 
     P.figure()
     plot_withdrawn_by_age(log)

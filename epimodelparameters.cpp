@@ -473,6 +473,7 @@ bool EpiModelParameters::readConfigFile(const char *configname) {
 	      iss>>nSeedInfectedCountyFIPS &&
 	      iss>>nSeedInfectedTractFIPS &&
 	      iss>>nSeedInfectedNumber) {
+	    cerr << "seedtract succeeded " << nSeedInfectedStateFIPS << " " << nSeedInfectedCountyFIPS <<" "<< nSeedInfectedTractFIPS << " " << nSeedInfectedNumber << endl;
 	  } else {
 	    cerr << "seedtract failed" << endl;
 	  }

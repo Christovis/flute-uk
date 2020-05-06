@@ -3497,12 +3497,13 @@ void EpiModel::seedinfected(void) {
 	    long pid = commvec[c].nFirstPerson + get_rand_uint32 % commvec[c].nNumResidents;
 	    infect(pvec[pid]);
 	    pvec[pid].sourcetype = FROMSEED;
+	    cout << "seeded person " << pid << "   in tract " << t.id << " " << t.fips_state << " " << t.fips_county << " " << t.fips_tract << endl ;
 #ifdef PARALLEL
 	    if (pvec[pid].nWorkRank!=rank)
 	      emigrantupdates.push_back(pid);
 #endif
 	  }
-	}
+	} 
       }
     } else {
 #ifdef PARALLEL
@@ -3539,6 +3540,7 @@ void EpiModel::seedinfected(void) {
 	if (isSusceptible(pvec[pid])) {
 	  infect(pvec[pid]);
 	  pvec[pid].sourcetype = FROMSEED;
+	  cout << "seeded person " << pid << "   selected at random" << endl ;
 	}
       }
 #endif

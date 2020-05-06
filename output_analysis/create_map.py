@@ -10,16 +10,11 @@ from matplotlib.pyplot import figure
 #plt.style.use("publication.mplstyle")
 
 region = "output_analysis/EnglandWales"
-run_dir = "ew-noaction/test_r0_2p0/"
+run_dir = "ew-lockdown-seedLondon/compliance_0p5/"
 
 # load encoder to get from FluTE internal to naming convection of input data
 flute_trans = pd.read_csv(
     run_dir +"/ew_tracts",
-    delimiter=',',
-    delim_whitespace=False,
-)
-flutelog_df = pd.read_csv(
-    run_dir + "ew_log",
     delimiter=',',
     delim_whitespace=False,
 )
@@ -45,18 +40,24 @@ MSOA11CD_df = pd.read_csv(
 MSOA11CD_df = MSOA11CD_df.rename(columns={"Unnamed: 0": "nomis id"})
 
 
+flutelog_df = pd.read_csv(
+    run_dir + "ew_log",
+    delimiter=',',
+    delim_whitespace=False,
+)
+
 # Rename FluTE area codes to NOMIS/MSOA area codes
 for flute_key in flute_trans["TractID"].values:
-    trans_key = flute_trans[flute_trans["TractID"] == flute_key]["FIPStract"].values[0] - 1  # counting issue : this needs -1 
+    trans_key = flute_trans[flute_trans["TractID"] == flute_key]["FIPStract"].values[0] -1  # counting issue : this needs -1 (yes).
     nomis_key = MSOA11CD_df[MSOA11CD_df["flute id"] == trans_key]["nomis id"].values[0]
     flutelog_df["TractID"] = flutelog_df["TractID"].replace(flute_key, nomis_key)
 
 # sum of all age groups
-flutelog_df["cumsym0-inf"] = flutelog_df[
-    ["cumsym0-4","cumsym5-18","cumsym19-29","cumsym30-64","cumsym65+"]
-].sum(axis=1)
+flutelog_df["sym0-inf"] = flutelog_df[
+    ["sym0-4","sym5-18","sym19-29","sym30-64","sym65+"]
+    ].sum(axis=1)
 flutelog_df = flutelog_df.drop(
-    columns=["cumsym0-4","cumsym5-18","cumsym19-29","cumsym30-64","cumsym65+"]
+    columns=["sym0-4","sym5-18","sym19-29","sym30-64","sym65+"]
 )
 
 # load shape file of England and Wales
@@ -77,18 +78,18 @@ for day in np.unique(flutelog_df["time"].values):
     )
 
     ew_day = ew_shape.merge(
-        flute_day[["time", "cumsym0-inf"]],
+        flute_day[["time", "sym0-inf"]],
         left_index=True,
         right_index=True
         )
  
     # Map
     ew_day.plot(
-        column="cumsym0-inf",
+        column="sym0-inf",
         ax=ax_map,
         cmap=cm.Blues,
         vmin=0,
-        vmax=ew_day["cumsym0-inf"].values.max(),
+        vmax=ew_day["sym0-inf"].values.max(),
         categorical=False,
         )
 #    ew_shape.plot(
