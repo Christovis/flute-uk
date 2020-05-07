@@ -285,7 +285,7 @@ cases = cases.fillna(0)
 cases["test_date"] = pd.to_datetime(cases["test_date"])
 cases[["counts", "cum_counts"]] = cases[["counts", "cum_counts"]].astype('int32')
 cases = cases.set_index(["UTLAD11CD"])
-cases = cases[cases["test_date"] == "2020-04-27"]
+cases = cases[cases["test_date"] == "2020-03-20"]
 cases = cases.drop(["test_date"], axis=1)
 cases = pd.merge(lt2ut, cases, how='left', on=['UTLAD11CD'])
 cases = cases.fillna(0)
@@ -310,12 +310,3 @@ cases.to_csv(
     sep=" ",
     header=False,
 )
-
-
-
-
-
-
-
-
-

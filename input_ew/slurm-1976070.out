@@ -1,0 +1,30 @@
+====
+Starting job 1976070 at Thu  9 Apr 14:25:41 BST 2020 for user dc-beck3.
+Running on nodes: m7198
+====
+WARNING: intel_comp/2018 cannot be loaded due to a conflict.
+HINT: Might try "module unload intel_comp" first.
+WARNING: openmpi/3.0.1 cannot be loaded due to a conflict.
+HINT: Might try "module unload intel_mpi" first.
+This shell is not interactive
+sys:1: DtypeWarning: Columns (9,13) have mixed types. Specify dtype option on import or set low_memory=False.
+test tracts: Int64Index([], dtype='int64')
+2365889
+test wf: Int64Index([], dtype='int64')
+Traceback (most recent call last):
+  File "create_ew_input.py", line 167, in <module>
+    flow = flow.astype('int32')
+  File "/cosma/home/dp004/dc-beck3/.local/lib/python3.6/site-packages/pandas/core/generic.py", line 5882, in astype
+    dtype=dtype, copy=copy, errors=errors, **kwargs
+  File "/cosma/home/dp004/dc-beck3/.local/lib/python3.6/site-packages/pandas/core/internals/managers.py", line 581, in astype
+    return self.apply("astype", dtype=dtype, **kwargs)
+  File "/cosma/home/dp004/dc-beck3/.local/lib/python3.6/site-packages/pandas/core/internals/managers.py", line 438, in apply
+    applied = getattr(b, f)(**kwargs)
+  File "/cosma/home/dp004/dc-beck3/.local/lib/python3.6/site-packages/pandas/core/internals/blocks.py", line 559, in astype
+    return self._astype(dtype, copy=copy, errors=errors, values=values, **kwargs)
+  File "/cosma/home/dp004/dc-beck3/.local/lib/python3.6/site-packages/pandas/core/internals/blocks.py", line 643, in _astype
+    values = astype_nansafe(vals1d, dtype, copy=True, **kwargs)
+  File "/cosma/home/dp004/dc-beck3/.local/lib/python3.6/site-packages/pandas/core/dtypes/cast.py", line 707, in astype_nansafe
+    return lib.astype_intsafe(arr.ravel(), dtype).reshape(arr.shape)
+  File "pandas/_libs/lib.pyx", line 547, in pandas._libs.lib.astype_intsafe
+ValueError: invalid literal for int() with base 10: 'E12000007'

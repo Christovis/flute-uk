@@ -1,0 +1,11 @@
+====
+Starting job 1979114 at Fri 10 Apr 23:47:45 BST 2020 for user dc-beck3.
+Running on nodes: m7055
+====
+This shell is not interactive
+FluTE version 1.17
+Parameter set: example_ew
+  ew population and workflow data
+  3 read in for R0
+   interpolated beta is 0.545425
+7201 tracts, 29569 communities

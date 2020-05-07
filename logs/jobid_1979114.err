@@ -1,0 +1,3 @@
+WARNING: openmpi/3.0.1 cannot be loaded due to a conflict.
+HINT: Might try "module unload intel_mpi" first.
+WARNING: Invalid value for daily vaccine production

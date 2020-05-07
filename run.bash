@@ -10,6 +10,6 @@
 
 module load intel_comp/2018 intel_mpi/2018
 
-./flute config-northeast
+./flute config-ew
 
 exit

@@ -12,5 +12,5 @@ module unload python
 module load python/3.6.5
 
 # Run
-python3 create_uk_input.py
+python3 create_ew_input.py
 

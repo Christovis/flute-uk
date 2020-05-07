@@ -1,0 +1,7 @@
+WARNING: intel_comp/2018 cannot be loaded due to a conflict.
+HINT: Might try "module unload intel_comp" first.
+WARNING: openmpi/3.0.1 cannot be loaded due to a conflict.
+HINT: Might try "module unload intel_mpi" first.
+WARNING: intel_comp/2018 cannot be loaded due to a conflict.
+HINT: Might try "module unload intel_comp" first.
+WARNING: Invalid value for daily vaccine production
