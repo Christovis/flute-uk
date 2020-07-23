@@ -1,6 +1,3 @@
-# FluTE_UK
+# FluTE-UK: Agent-based influenza epidemic model
 
-
-[The paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2813259/pdf/pcbi.1000656.pdf)<br>
-
-[Google Docs with a Code Summary](https://docs.google.com/document/d/1szUoXSAQPEPUg7gzmRaE3lWh47ge9mJM58ck1uaRONw/edit?usp=sharing)<br>
+This is an UK adaptation of the original FluTE project, which was originally written for the US (by Dennis Chao: [publication](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2813259/pdf/pcbi.1000656.pdf)<br> , [github-repo](https://github.com/dlchao/FluTE)<br>.
